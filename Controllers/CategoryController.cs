@@ -66,6 +66,7 @@ namespace Novi.Controllers
             return g;
         }
 
+
         [Route("WriteCategory")]
         [HttpPost]
         public async Task WriteCategory([FromBody] Category category)
