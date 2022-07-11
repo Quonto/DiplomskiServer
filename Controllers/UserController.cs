@@ -15,7 +15,6 @@ namespace Novi.Controllers
     {
 
         public CategoryContext Context { get; set; }
-        private readonly ILogger<UserController> _logger;
 
         public UserController(CategoryContext context)
         {
@@ -27,7 +26,7 @@ namespace Novi.Controllers
         public async Task<ActionResult<User>> FetchUser([FromBody] User user)
         {
 
-            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).Include(u => u.UserInformation).Include(p => p.Products).Include(p => p.Products).ThenInclude(g => g.Group).ThenInclude(pi => pi.ProductInformation).Include(p => p.Products).ThenInclude(r => r.Reviews).FirstAsync();
+            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).FirstAsync();
 
             if (ko == null)
                 return NotFound();
@@ -146,7 +145,6 @@ namespace Novi.Controllers
             return pr.Id;
         }
 
-
         [Route("InputNumberOfView")]
         [HttpPost]
         public async Task<IActionResult> InputNumberOfViewe(int id_product, [FromBody] NumberOfViewe numberOfViewe)
@@ -163,7 +161,6 @@ namespace Novi.Controllers
 
             return Ok();
         }
-
 
         [Route("InputProductPicture")]
         [HttpPost]

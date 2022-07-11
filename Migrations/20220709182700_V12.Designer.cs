@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Novi.Models;
 
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    partial class CategoryContextModelSnapshot : ModelSnapshot
+    [Migration("20220709182700_V12")]
+    partial class V12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,7 +355,7 @@ namespace DiplomskiServer.Migrations
                         .HasForeignKey("id_group");
 
                     b.HasOne("Novi.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("id_user");
 
                     b.Navigation("Group");
@@ -428,6 +430,8 @@ namespace DiplomskiServer.Migrations
 
             modelBuilder.Entity("Novi.Models.User", b =>
                 {
+                    b.Navigation("Products");
+
                     b.Navigation("UserInformation");
                 });
 #pragma warning restore 612, 618

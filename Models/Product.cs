@@ -25,6 +25,7 @@ namespace Novi.Models
         [Column("number_of_like")]
         public int NumberOfLike { get; set; }
 
+
         [Column("number_of_viewers")]
         public List<NumberOfViewe> NumberOfViewers { get; set; }
 
@@ -40,7 +41,7 @@ namespace Novi.Models
         [Column("data")]
         public List<ProductInformationData> Data { get; set; }
 
-
+        [JsonIgnore]
         [ForeignKey("id_group")]
         public Group Group { get; set; }
 

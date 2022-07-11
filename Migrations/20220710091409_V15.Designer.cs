@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Novi.Models;
 
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    partial class CategoryContextModelSnapshot : ModelSnapshot
+    [Migration("20220710091409_V15")]
+    partial class V15
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,17 +150,17 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("int")
                         .HasColumnName("price");
 
-                    b.Property<int?>("id_group")
+                    b.Property<int?>("UserID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("id_user")
+                    b.Property<int?>("id_group")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("id_group");
+                    b.HasIndex("UserID");
 
-                    b.HasIndex("id_user");
+                    b.HasIndex("id_group");
 
                     b.ToTable("Product");
                 });
@@ -348,13 +350,13 @@ namespace DiplomskiServer.Migrations
 
             modelBuilder.Entity("Novi.Models.Product", b =>
                 {
+                    b.HasOne("Novi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
                     b.HasOne("Novi.Models.Group", "Group")
                         .WithMany("Products")
                         .HasForeignKey("id_group");
-
-                    b.HasOne("Novi.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("id_user");
 
                     b.Navigation("Group");
 

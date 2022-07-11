@@ -15,7 +15,6 @@ namespace Novi.Controllers
     {
 
         public CategoryContext Context { get; set; }
-        private readonly ILogger<CategoryController> _logger;
 
         public CategoryController(CategoryContext context)
         {
@@ -59,6 +58,14 @@ namespace Novi.Controllers
             return g;
         }
 
+        [Route("FetchGroup")]
+        [HttpGet]
+        public async Task<ActionResult<Group>> FetchGroup(int id_group)
+        {
+            Group g = await Context.Groups.Where(pi => pi.Id == id_group).Include(p => p.ProductInformation).FirstAsync();
+            return g;
+        }
+
         [Route("WriteCategory")]
         [HttpPost]
         public async Task WriteCategory([FromBody] Category category)
@@ -79,8 +86,13 @@ namespace Novi.Controllers
         }
 
 
-
-
+        [Route("UpdateCategory")]
+        [HttpPost]
+        public async Task UpdateCategory([FromBody] Category category)
+        {
+            Context.Categories.Update(category);
+            await Context.SaveChangesAsync();
+        }
 
         /*
                 [Route("PreuzmiJedanProizvod/{id}")]

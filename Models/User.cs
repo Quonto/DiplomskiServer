@@ -31,9 +31,5 @@ namespace Novi.Models
         public virtual List<UserInformation> UserInformation { get; set; }
 
 
-        [Column("products")]
-        public virtual List<Product> Products { get; set; }
-
-
     }
 }
