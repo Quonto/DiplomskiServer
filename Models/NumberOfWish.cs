@@ -4,27 +4,19 @@ using System.Text.Json.Serialization;
 
 namespace Novi.Models
 {
-    [Table("Review")]
-    public class Review
+    [Table("NumberOfWish")]
+    public class NumberOfWish
     {
         [Key]
-        [Column("id_review")]
+        [Column("id_wish")]
         public int Id { get; set; }
 
-        [Column("mark")]
-        public int Mark { get; set; }
-
-
-        [Column("coment")]
-        public string Coment { get; set; }
-
+        [Column("id_user")]
+        public int IdUser { get; set; }
 
         [JsonIgnore]
         [ForeignKey("id_product")]
         public Product Product { get; set; }
-
-        [ForeignKey("id_user")]
-        public User User { get; set; }
 
     }
 

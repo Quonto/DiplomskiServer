@@ -6,19 +6,19 @@ namespace DiplomskiServer.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "id_product_information_save",
-                table: "ProductInformationData",
-                type: "int",
+            migrationBuilder.AddColumn<bool>(
+                name: "buy",
+                table: "Product",
+                type: "bit",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "id_product_information_save",
-                table: "ProductInformationData");
+                name: "buy",
+                table: "Product");
         }
     }
 }

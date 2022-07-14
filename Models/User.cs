@@ -24,11 +24,12 @@ namespace Novi.Models
         [Column("password")]
         public string Password { get; set; }
 
+
         [Column("picture")]
         public string Picture { get; set; }
 
         [Column("user_information")]
-        public virtual List<UserInformation> UserInformation { get; set; }
+        public virtual UserInformation UserInformation { get; set; }
 
 
     }

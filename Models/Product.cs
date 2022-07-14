@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+
 namespace Novi.Models
 {
     [Table("Product")]
@@ -19,11 +20,14 @@ namespace Novi.Models
         [Column("price")]
         public int Price { get; set; }
 
+        [Column("buy")]
+        public bool Buy { get; set; }
+
         [Column("number_of_wish")]
-        public int NumberOfWish { get; set; }
+        public List<NumberOfWish> NumberOfWish { get; set; }
 
         [Column("number_of_like")]
-        public int NumberOfLike { get; set; }
+        public List<NumberOfLike> NumberOfLike { get; set; }
 
 
         [Column("number_of_viewers")]
@@ -31,6 +35,16 @@ namespace Novi.Models
 
         [Column("details")]
         public string Details { get; set; }
+
+        [Column("phone")]
+        public string Phone { get; set; }
+
+        [Column("place")]
+        public string Place { get; set; }
+
+        [DataType(DataType.Date)]
+        [Display(Name = "date")]
+        public System.DateTime Date { get; set; }
 
         [Column("picture")]
         public virtual List<Image> Picture { get; set; }
@@ -48,12 +62,6 @@ namespace Novi.Models
 
         [ForeignKey("id_user")]
         public User User { get; set; }
-
-
-
-
-
-
 
     }
 }

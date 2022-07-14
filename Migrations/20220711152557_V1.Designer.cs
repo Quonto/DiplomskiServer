@@ -10,8 +10,8 @@ using Novi.Models;
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    [Migration("20220709182700_V12")]
-    partial class V12
+    [Migration("20220711152557_V1")]
+    partial class V1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -129,6 +129,9 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_product")
                         .UseIdentityColumn();
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Details")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("details");
@@ -145,6 +148,14 @@ namespace DiplomskiServer.Migrations
                     b.Property<int>("NumberOfWish")
                         .HasColumnType("int")
                         .HasColumnName("number_of_wish");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("place");
 
                     b.Property<int>("Price")
                         .HasColumnType("int")
@@ -291,10 +302,21 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("data");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("place");
 
                     b.Property<int?>("id_user")
                         .HasColumnType("int");
@@ -355,7 +377,7 @@ namespace DiplomskiServer.Migrations
                         .HasForeignKey("id_group");
 
                     b.HasOne("Novi.Models.User", "User")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("id_user");
 
                     b.Navigation("Group");
@@ -430,8 +452,6 @@ namespace DiplomskiServer.Migrations
 
             modelBuilder.Entity("Novi.Models.User", b =>
                 {
-                    b.Navigation("Products");
-
                     b.Navigation("UserInformation");
                 });
 #pragma warning restore 612, 618

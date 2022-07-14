@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DiplomskiServer.Migrations
 {
@@ -7,25 +8,12 @@ namespace DiplomskiServer.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ProductInformation",
-                columns: table => new
-                {
-                    id_product_information = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    data = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductInformation", x => x.id_product_information);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
                     id_user = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    is_admin = table.Column<bool>(type: "bit", nullable: false),
                     username = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     password = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -43,6 +31,9 @@ namespace DiplomskiServer.Migrations
                     id_user_information = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    place = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     data = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     id_user = table.Column<int>(type: "int", nullable: true)
                 },
@@ -82,8 +73,10 @@ namespace DiplomskiServer.Migrations
                     price = table.Column<int>(type: "int", nullable: false),
                     number_of_wish = table.Column<int>(type: "int", nullable: false),
                     number_of_like = table.Column<int>(type: "int", nullable: false),
-                    number_of_viewers = table.Column<int>(type: "int", nullable: false),
                     details = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    place = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     id_group = table.Column<int>(type: "int", nullable: true),
                     id_user = table.Column<int>(type: "int", nullable: true)
                 },
@@ -101,6 +94,26 @@ namespace DiplomskiServer.Migrations
                         column: x => x.id_user,
                         principalTable: "User",
                         principalColumn: "id_user",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductInformation",
+                columns: table => new
+                {
+                    id_product_information = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    id_group = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductInformation", x => x.id_product_information);
+                    table.ForeignKey(
+                        name: "FK_ProductInformation_Group_id_group",
+                        column: x => x.id_group,
+                        principalTable: "Group",
+                        principalColumn: "id_group",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -126,27 +139,23 @@ namespace DiplomskiServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductProductInformation",
+                name: "NumberOfViewe",
                 columns: table => new
                 {
-                    ProductInformationId = table.Column<int>(type: "int", nullable: false),
-                    ProductsId = table.Column<int>(type: "int", nullable: false)
+                    id_viewe = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id_user = table.Column<int>(type: "int", nullable: false),
+                    id_product = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductProductInformation", x => new { x.ProductInformationId, x.ProductsId });
+                    table.PrimaryKey("PK_NumberOfViewe", x => x.id_viewe);
                     table.ForeignKey(
-                        name: "FK_ProductProductInformation_Product_ProductsId",
-                        column: x => x.ProductsId,
+                        name: "FK_NumberOfViewe_Product_id_product",
+                        column: x => x.id_product,
                         principalTable: "Product",
                         principalColumn: "id_product",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductProductInformation_ProductInformation_ProductInformationId",
-                        column: x => x.ProductInformationId,
-                        principalTable: "ProductInformation",
-                        principalColumn: "id_product_information",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -167,6 +176,34 @@ namespace DiplomskiServer.Migrations
                         column: x => x.id_product,
                         principalTable: "Product",
                         principalColumn: "id_product",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductInformationData",
+                columns: table => new
+                {
+                    id_product_information_data = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id_product_information_save = table.Column<int>(type: "int", nullable: false),
+                    data = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    id_product_information = table.Column<int>(type: "int", nullable: true),
+                    id_product = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductInformationData", x => x.id_product_information_data);
+                    table.ForeignKey(
+                        name: "FK_ProductInformationData_Product_id_product",
+                        column: x => x.id_product,
+                        principalTable: "Product",
+                        principalColumn: "id_product",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProductInformationData_ProductInformation_id_product_information",
+                        column: x => x.id_product_information,
+                        principalTable: "ProductInformation",
+                        principalColumn: "id_product_information",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -211,6 +248,11 @@ namespace DiplomskiServer.Migrations
                 column: "id_product");
 
             migrationBuilder.CreateIndex(
+                name: "IX_NumberOfViewe_id_product",
+                table: "NumberOfViewe",
+                column: "id_product");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Product_id_group",
                 table: "Product",
                 column: "id_group");
@@ -221,9 +263,19 @@ namespace DiplomskiServer.Migrations
                 column: "id_user");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductProductInformation_ProductsId",
-                table: "ProductProductInformation",
-                column: "ProductsId");
+                name: "IX_ProductInformation_id_group",
+                table: "ProductInformation",
+                column: "id_group");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductInformationData_id_product",
+                table: "ProductInformationData",
+                column: "id_product");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductInformationData_id_product_information",
+                table: "ProductInformationData",
+                column: "id_product_information");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Review_id_product",
@@ -263,7 +315,10 @@ namespace DiplomskiServer.Migrations
                 table: "Group");
 
             migrationBuilder.DropTable(
-                name: "ProductProductInformation");
+                name: "NumberOfViewe");
+
+            migrationBuilder.DropTable(
+                name: "ProductInformationData");
 
             migrationBuilder.DropTable(
                 name: "Review");

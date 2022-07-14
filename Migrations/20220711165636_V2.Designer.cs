@@ -10,8 +10,8 @@ using Novi.Models;
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    [Migration("20220710092043_V16")]
-    partial class V16
+    [Migration("20220711165636_V2")]
+    partial class V2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -129,6 +129,9 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_product")
                         .UseIdentityColumn();
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Details")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("details");
@@ -145,6 +148,14 @@ namespace DiplomskiServer.Migrations
                     b.Property<int>("NumberOfWish")
                         .HasColumnType("int")
                         .HasColumnName("number_of_wish");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("place");
 
                     b.Property<int>("Price")
                         .HasColumnType("int")
@@ -291,10 +302,26 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("data");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("place");
+
+                    b.Property<string>("SureName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("surename");
 
                     b.Property<int?>("id_user")
                         .HasColumnType("int");

@@ -10,7 +10,7 @@ using Novi.Models;
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    [Migration("20220707100413_V5")]
+    [Migration("20220711183552_V5")]
     partial class V5
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,6 +129,9 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_product")
                         .UseIdentityColumn();
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Details")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("details");
@@ -145,6 +148,14 @@ namespace DiplomskiServer.Migrations
                     b.Property<int>("NumberOfWish")
                         .HasColumnType("int")
                         .HasColumnName("number_of_wish");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("place");
 
                     b.Property<int>("Price")
                         .HasColumnType("int")
@@ -173,10 +184,6 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_product_information")
                         .UseIdentityColumn();
 
-                    b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("data");
-
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
@@ -190,6 +197,37 @@ namespace DiplomskiServer.Migrations
                     b.HasIndex("id_group");
 
                     b.ToTable("ProductInformation");
+                });
+
+            modelBuilder.Entity("Novi.Models.ProductInformationData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_product_information_data")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Data")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("data");
+
+                    b.Property<int>("IdInfo")
+                        .HasColumnType("int")
+                        .HasColumnName("id_product_information_save");
+
+                    b.Property<int?>("id_product")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("id_product_information")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("id_product");
+
+                    b.HasIndex("id_product_information");
+
+                    b.ToTable("ProductInformationData");
                 });
 
             modelBuilder.Entity("Novi.Models.Review", b =>
@@ -264,17 +302,35 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("data");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("place");
+
+                    b.Property<string>("Surename")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("surename");
 
                     b.Property<int?>("id_user")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("id_user");
+                    b.HasIndex("id_user")
+                        .IsUnique()
+                        .HasFilter("[id_user] IS NOT NULL");
 
                     b.ToTable("UserInformation");
                 });
@@ -328,7 +384,7 @@ namespace DiplomskiServer.Migrations
                         .HasForeignKey("id_group");
 
                     b.HasOne("Novi.Models.User", "User")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("id_user");
 
                     b.Navigation("Group");
@@ -345,6 +401,21 @@ namespace DiplomskiServer.Migrations
                     b.Navigation("Groups");
                 });
 
+            modelBuilder.Entity("Novi.Models.ProductInformationData", b =>
+                {
+                    b.HasOne("Novi.Models.Product", "Product")
+                        .WithMany("Data")
+                        .HasForeignKey("id_product");
+
+                    b.HasOne("Novi.Models.ProductInformation", "ProductInformation")
+                        .WithMany()
+                        .HasForeignKey("id_product_information");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductInformation");
+                });
+
             modelBuilder.Entity("Novi.Models.Review", b =>
                 {
                     b.HasOne("Novi.Models.Product", "Product")
@@ -357,8 +428,8 @@ namespace DiplomskiServer.Migrations
             modelBuilder.Entity("Novi.Models.UserInformation", b =>
                 {
                     b.HasOne("Novi.Models.User", "User")
-                        .WithMany("UserInformation")
-                        .HasForeignKey("id_user");
+                        .WithOne("UserInformation")
+                        .HasForeignKey("Novi.Models.UserInformation", "id_user");
 
                     b.Navigation("User");
                 });
@@ -377,6 +448,8 @@ namespace DiplomskiServer.Migrations
 
             modelBuilder.Entity("Novi.Models.Product", b =>
                 {
+                    b.Navigation("Data");
+
                     b.Navigation("NumberOfViewers");
 
                     b.Navigation("Picture");
@@ -386,8 +459,6 @@ namespace DiplomskiServer.Migrations
 
             modelBuilder.Entity("Novi.Models.User", b =>
                 {
-                    b.Navigation("Products");
-
                     b.Navigation("UserInformation");
                 });
 #pragma warning restore 612, 618

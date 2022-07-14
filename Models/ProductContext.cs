@@ -27,11 +27,13 @@ namespace Novi.Models
 
         public DbSet<NumberOfViewe> NumberOfViewes { get; set; }
 
+        public DbSet<NumberOfWish> NumberOfWish { get; set; }
+
+        public DbSet<NumberOfLike> NumberOfLike { get; set; }
+
         public CategoryContext(DbContextOptions<CategoryContext> options) : base(options)
         {
 
         }
-
-
     }
 }

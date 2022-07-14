@@ -16,6 +16,19 @@ namespace Novi.Models
         [MaxLength(255)]
         public string Name { get; set; }
 
+        [Column("surename")]
+        [MaxLength(255)]
+        public string Surename { get; set; }
+
+        [Column("phone")]
+        public string Phone { get; set; }
+
+        [Column("place")]
+        public string Place { get; set; }
+
+        [DataType(DataType.DateTime)]
+        [Display(Name = "date")]
+        public System.DateTime Date { get; set; }
 
         [Column("data")]
         public string Data { get; set; }

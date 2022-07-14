@@ -88,12 +88,41 @@ namespace Novi.Controllers
 
 
         [Route("UpdateCategory")]
-        [HttpPost]
+        [HttpPut]
         public async Task UpdateCategory([FromBody] Category category)
         {
             Context.Categories.Update(category);
             await Context.SaveChangesAsync();
         }
+
+
+        [Route("RemoveProductInformation/{id_product_information}")]
+        [HttpDelete]
+        public async Task RemoveProductInformation(int id_product_information)
+        {
+            ProductInformation pi = await Context.ProductInformation.FindAsync(id_product_information);
+            Context.Remove(pi);
+            await Context.SaveChangesAsync();
+        }
+
+        [Route("RemoveGroup/{id_group}")]
+        [HttpDelete]
+        public async Task RemoveGroup(int id_group)
+        {
+            Group group = await Context.Groups.FindAsync(id_group);
+            Context.Remove(group);
+            await Context.SaveChangesAsync();
+        }
+
+        [Route("RemoveCategory/{id_category}")]
+        [HttpDelete]
+        public async Task RemoveCategory(int id_category)
+        {
+            Category category = await Context.Categories.FindAsync(id_category);
+            Context.Remove(category);
+            await Context.SaveChangesAsync();
+        }
+
 
         /*
                 [Route("PreuzmiJedanProizvod/{id}")]

@@ -2,7 +2,7 @@
 
 namespace DiplomskiServer.Migrations
 {
-    public partial class V12 : Migration
+    public partial class V3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
