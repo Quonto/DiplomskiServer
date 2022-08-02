@@ -66,6 +66,14 @@ namespace Novi.Controllers
             return g;
         }
 
+        [Route("FetchPlace")]
+        [HttpGet]
+        public async Task<ActionResult<List<Place>>> FetchPlace()
+        {
+            List<Place> p = await Context.Place.ToListAsync();
+            return p;
+        }
+
 
         [Route("WriteCategory")]
         [HttpPost]

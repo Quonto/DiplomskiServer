@@ -15,7 +15,6 @@ namespace Novi.Controllers
     {
 
         public CategoryContext Context { get; set; }
-
         public UserController(CategoryContext context)
         {
             Context = context;
@@ -26,7 +25,7 @@ namespace Novi.Controllers
         public async Task<ActionResult<User>> FetchUser([FromBody] User user)
         {
 
-            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).Include(u => u.UserInformation).FirstAsync();
+            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstAsync();
 
             if (ko == null)
                 return NotFound();
@@ -43,11 +42,11 @@ namespace Novi.Controllers
         }
 
 
-        [Route("FetchProduct")]
+        [Route("FetchProducts")]
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> FetchProduct(int id_group)
+        public async Task<ActionResult<List<Product>>> FetchProducts(int id_group)
         {
-            List<Product> pr = await Context.Products.Where(p => p.Group.Id == id_group).Include(p => p.Data).Include(p => p.Data).ThenInclude(p => p.ProductInformation).Include(p => p.Picture).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Reviews).ThenInclude(r => r.User).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Group.Id == id_group && p.Buy == false).Include(p => p.Picture).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).ToListAsync();
             return pr;
         }
 
@@ -55,18 +54,43 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Product>>> FetchUserProducts(int id_user)
         {
-            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user && p.Buy == true).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).ToListAsync();
             return pr;
         }
-
 
         [Route("FetchSingleProduct")]
         [HttpGet]
         public async Task<ActionResult<Product>> FetchSingleProduct(int id_product)
         {
-            Product pr = await Context.Products.Where(p => p.Id == id_product).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).FirstAsync();
+            Product pr = await Context.Products.Where(p => p.Id == id_product).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).FirstAsync();
             return pr;
         }
+
+        [Route("FetchMostWanted")]
+        [HttpGet]
+        public async Task<List<Group>> FetchMostWanted()
+        {
+            List<Group> gr = await Context.Groups.Include(p => p.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfWish.Count)).ThenInclude(p => p.NumberOfWish).Include(p => p.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfWish.Count)).ThenInclude(p => p.Picture).Take(20).ToListAsync();
+            return gr;
+        }
+
+        [Route("FetchLikeProduct")]
+        [HttpGet]
+        public async Task<List<Group>> FetchLikeProduct()
+        {
+            List<Group> gr = await Context.Groups.Include(p => p.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count)).ThenInclude(p => p.NumberOfLike).Include(p => p.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count)).ThenInclude(p => p.Picture).Take(20).ToListAsync();
+            return gr;
+        }
+
+        [Route("FetchPopularCategory")]
+        [HttpGet]
+        public async Task<List<Group>> FetchPopularCategory()
+        {
+            List<Group> gr = await Context.Groups.Include(p => p.Products.OrderByDescending(p => p.NumberOfViewers.Count)).ToListAsync();
+            return gr;
+        }
+
+
 
         [Route("FetchNumberOfView")]
         [HttpGet]
@@ -79,6 +103,80 @@ namespace Novi.Controllers
             }
             return pd.NumberOfViewers;
         }
+
+        [Route("FetchUser/{id_user}")]
+        [HttpGet]
+        public async Task<ActionResult<User>> FetchUser(int id_user)
+        {
+            User u = await Context.Users.Where(u => u.ID == id_user).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).FirstAsync();
+            if (u == null)
+            {
+                return BadRequest("Product does not exist");
+            }
+            return u;
+        }
+
+
+        [Route("InputPurchase/{id_product}")]
+        [HttpPut]
+        public async Task InputPurchase(int id_product, [FromBody] Product product)
+        {
+            Product p = await Context.Products.FindAsync(id_product);
+            p.AddToCart = product.AddToCart;
+
+            Context.Products.Update(p);
+            await Context.SaveChangesAsync();
+        }
+
+        [Route("InputBuy/{id_user}")]
+        [HttpPut]
+        public async Task InputBuy(int id_user, [FromBody] List<Product> products)
+        {
+
+            foreach (Product product in products)
+            {
+                Product p = await Context.Products.FindAsync(product.Id);
+                if (p.Buy != true && p != null)
+                {
+                    p.Buy = true;
+                    p.BuyUser = id_user;
+                    Context.Products.Update(p);
+                }
+            }
+            await Context.SaveChangesAsync();
+        }
+
+        [Route("InputProduct/{id_product}")]
+        [HttpPut]
+        public async Task InputProduct(int id_product)
+        {
+            Product p = await Context.Products.FindAsync(id_product);
+            p.AddToCart = false;
+            p.Buy = false;
+
+            Context.Products.Update(p);
+            await Context.SaveChangesAsync();
+        }
+
+
+        [Route("UpdateUserPlace/{id_place}")]
+        [HttpPut]
+        public async Task<ActionResult<int>> UpdateUserPlace(int id_place, [FromBody] User user)
+        {
+            PlaceProductUser p = await Context.PlaceProductUser.FindAsync(id_place);
+            if (p == null)
+            {
+                return NotFound();
+            }
+
+            user.UserInformation.Place = p;
+
+            Context.Users.Update(user);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
+
 
         [Route("InputUser")]
         [HttpPost]
@@ -161,6 +259,18 @@ namespace Novi.Controllers
 
             ProductInformation pr = Context.ProductInformation.Where(pr => pr.Name == productInformation.Name).FirstOrDefault();
             return pr.Id;
+        }
+
+
+        [Route("InputPlace")]
+        [HttpPost]
+        public async Task<ActionResult<int>> InputPlace([FromBody] Place place)
+        {
+            Context.Place.Add(place);
+            await Context.SaveChangesAsync();
+
+            Place p = await Context.Place.Where(p => p.Name == place.Name).FirstAsync();
+            return p.Id;
         }
 
         [Route("InputNumberOfView")]
@@ -326,11 +436,49 @@ namespace Novi.Controllers
 
         [Route("RemoveProduct/{id_product}")]
         [HttpDelete]
-        public async Task RemoveProduct(int id_product)
+        public async Task<IActionResult> RemoveProduct(int id_product)
         {
-            Product product = await Context.Products.FindAsync(id_product);
+            Product product = await Context.Products.Where(p => p.Id == id_product).Include(p => p.NumberOfWish).Include(p => p.NumberOfLike).Include(p => p.NumberOfViewers).Include(p => p.Picture).Include(p => p.Reviews).Include(p => p.Data).FirstAsync();
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            foreach (NumberOfWish wish in product.NumberOfWish)
+            {
+                Context.NumberOfWish.Remove(wish);
+            }
+
+            foreach (NumberOfLike like in product.NumberOfLike)
+            {
+                Context.NumberOfLike.Remove(like);
+            }
+
+            foreach (NumberOfViewe viewe in product.NumberOfViewers)
+            {
+                Context.NumberOfViewes.Remove(viewe);
+            }
+
+            foreach (Image picture in product.Picture)
+            {
+                Context.Images.Remove(picture);
+            }
+
+            foreach (Review review in product.Reviews)
+            {
+                Context.Reviews.Remove(review);
+            }
+
+            foreach (ProductInformationData data in product.Data)
+            {
+                Context.ProductInformationData.Remove(data);
+            }
+
             Context.Remove(product);
             await Context.SaveChangesAsync();
+
+            return Ok();
         }
 
         [Route("RemoveNumberOfLike/{id_like}")]
@@ -341,6 +489,16 @@ namespace Novi.Controllers
             Context.Remove(like);
             await Context.SaveChangesAsync();
         }
+
+        [Route("RemoveImage/{id_image}")]
+        [HttpDelete]
+        public async Task RemoveImage(int id_image)
+        {
+            Image image = await Context.Images.FindAsync(id_image);
+            Context.Remove(image);
+            await Context.SaveChangesAsync();
+        }
+
 
 
         /*

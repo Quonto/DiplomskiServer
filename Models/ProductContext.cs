@@ -31,6 +31,10 @@ namespace Novi.Models
 
         public DbSet<NumberOfLike> NumberOfLike { get; set; }
 
+        public DbSet<Place> Place { get; set; }
+
+        public DbSet<PlaceProductUser> PlaceProductUser { get; set; }
+
         public CategoryContext(DbContextOptions<CategoryContext> options) : base(options)
         {
 

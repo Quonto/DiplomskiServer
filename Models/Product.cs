@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 
@@ -23,6 +24,12 @@ namespace Novi.Models
         [Column("buy")]
         public bool Buy { get; set; }
 
+        [Column("id_user_buy")]
+        public int BuyUser { get; set; }
+
+        [Column("add_to_cart")]
+        public bool AddToCart { get; set; }
+
         [Column("number_of_wish")]
         public List<NumberOfWish> NumberOfWish { get; set; }
 
@@ -39,8 +46,8 @@ namespace Novi.Models
         [Column("phone")]
         public string Phone { get; set; }
 
-        [Column("place")]
-        public string Place { get; set; }
+        [Column("place_product")]
+        public PlaceProductUser Place { get; set; }
 
         [DataType(DataType.Date)]
         [Display(Name = "date")]

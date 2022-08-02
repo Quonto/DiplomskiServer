@@ -8,6 +8,19 @@ namespace DiplomskiServer.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Place",
+                columns: table => new
+                {
+                    id_place = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Place", x => x.id_place);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -30,9 +43,9 @@ namespace DiplomskiServer.Migrations
                 {
                     id_user_information = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    nameUser = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    surename = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    place = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     data = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     id_user = table.Column<int>(type: "int", nullable: true)
@@ -71,11 +84,11 @@ namespace DiplomskiServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     price = table.Column<int>(type: "int", nullable: false),
-                    number_of_wish = table.Column<int>(type: "int", nullable: false),
-                    number_of_like = table.Column<int>(type: "int", nullable: false),
+                    buy = table.Column<bool>(type: "bit", nullable: false),
+                    id_user_buy = table.Column<int>(type: "int", nullable: false),
+                    add_to_cart = table.Column<bool>(type: "bit", nullable: false),
                     details = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    place = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     id_group = table.Column<int>(type: "int", nullable: true),
                     id_user = table.Column<int>(type: "int", nullable: true)
@@ -139,6 +152,26 @@ namespace DiplomskiServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NumberOfLike",
+                columns: table => new
+                {
+                    id_like = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id_user = table.Column<int>(type: "int", nullable: false),
+                    id_product = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NumberOfLike", x => x.id_like);
+                    table.ForeignKey(
+                        name: "FK_NumberOfLike_Product_id_product",
+                        column: x => x.id_product,
+                        principalTable: "Product",
+                        principalColumn: "id_product",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NumberOfViewe",
                 columns: table => new
                 {
@@ -159,6 +192,53 @@ namespace DiplomskiServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NumberOfWish",
+                columns: table => new
+                {
+                    id_wish = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id_user = table.Column<int>(type: "int", nullable: false),
+                    id_product = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NumberOfWish", x => x.id_wish);
+                    table.ForeignKey(
+                        name: "FK_NumberOfWish_Product_id_product",
+                        column: x => x.id_product,
+                        principalTable: "Product",
+                        principalColumn: "id_product",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlaceProductUser",
+                columns: table => new
+                {
+                    id_places_product_user = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    id_user_information = table.Column<int>(type: "int", nullable: true),
+                    id_product = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlaceProductUser", x => x.id_places_product_user);
+                    table.ForeignKey(
+                        name: "FK_PlaceProductUser_Product_id_product",
+                        column: x => x.id_product,
+                        principalTable: "Product",
+                        principalColumn: "id_product",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PlaceProductUser_UserInformation_id_user_information",
+                        column: x => x.id_user_information,
+                        principalTable: "UserInformation",
+                        principalColumn: "id_user_information",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Review",
                 columns: table => new
                 {
@@ -166,7 +246,8 @@ namespace DiplomskiServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     mark = table.Column<int>(type: "int", nullable: false),
                     coment = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    id_product = table.Column<int>(type: "int", nullable: true)
+                    id_product = table.Column<int>(type: "int", nullable: true),
+                    id_user = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -176,6 +257,12 @@ namespace DiplomskiServer.Migrations
                         column: x => x.id_product,
                         principalTable: "Product",
                         principalColumn: "id_product",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Review_User_id_user",
+                        column: x => x.id_user,
+                        principalTable: "User",
+                        principalColumn: "id_user",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -248,9 +335,33 @@ namespace DiplomskiServer.Migrations
                 column: "id_product");
 
             migrationBuilder.CreateIndex(
+                name: "IX_NumberOfLike_id_product",
+                table: "NumberOfLike",
+                column: "id_product");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_NumberOfViewe_id_product",
                 table: "NumberOfViewe",
                 column: "id_product");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NumberOfWish_id_product",
+                table: "NumberOfWish",
+                column: "id_product");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlaceProductUser_id_product",
+                table: "PlaceProductUser",
+                column: "id_product",
+                unique: true,
+                filter: "[id_product] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlaceProductUser_id_user_information",
+                table: "PlaceProductUser",
+                column: "id_user_information",
+                unique: true,
+                filter: "[id_user_information] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_id_group",
@@ -283,9 +394,16 @@ namespace DiplomskiServer.Migrations
                 column: "id_product");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Review_id_user",
+                table: "Review",
+                column: "id_user");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserInformation_id_user",
                 table: "UserInformation",
-                column: "id_user");
+                column: "id_user",
+                unique: true,
+                filter: "[id_user] IS NOT NULL");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Group_Category_id_category",
@@ -315,7 +433,19 @@ namespace DiplomskiServer.Migrations
                 table: "Group");
 
             migrationBuilder.DropTable(
+                name: "NumberOfLike");
+
+            migrationBuilder.DropTable(
                 name: "NumberOfViewe");
+
+            migrationBuilder.DropTable(
+                name: "NumberOfWish");
+
+            migrationBuilder.DropTable(
+                name: "Place");
+
+            migrationBuilder.DropTable(
+                name: "PlaceProductUser");
 
             migrationBuilder.DropTable(
                 name: "ProductInformationData");

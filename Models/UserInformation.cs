@@ -12,9 +12,9 @@ namespace Novi.Models
         [Column("id_user_information")]
         public int Id { get; set; }
 
-        [Column("name")]
+        [Column("nameUser")]
         [MaxLength(255)]
-        public string Name { get; set; }
+        public string NameUser { get; set; }
 
         [Column("surename")]
         [MaxLength(255)]
@@ -24,7 +24,7 @@ namespace Novi.Models
         public string Phone { get; set; }
 
         [Column("place")]
-        public string Place { get; set; }
+        public PlaceProductUser Place { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Name = "date")]
