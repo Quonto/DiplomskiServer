@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Novi.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ namespace Novi.Models
     public class CategoryContext : DbContext
     {
         public DbSet<Category> Categories { get; set; }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Product> Products { get; set; }
@@ -34,6 +36,9 @@ namespace Novi.Models
         public DbSet<Place> Place { get; set; }
 
         public DbSet<PlaceProductUser> PlaceProductUser { get; set; }
+
+        public DbSet<Auction> Auction { get; set; }
+
 
         public CategoryContext(DbContextOptions<CategoryContext> options) : base(options)
         {

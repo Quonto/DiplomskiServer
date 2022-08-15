@@ -17,6 +17,8 @@ using Novi.Models;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Novi.Hubs;
+
 
 
 namespace Novi
@@ -39,12 +41,14 @@ namespace Novi
                    {
                        builder.AllowAnyHeader()
                        .AllowAnyMethod()
-                       .AllowAnyOrigin();
-
+                       .AllowCredentials()
+                       .SetIsOriginAllowed((host) => true); //for signalr cors                
                    }
                    );
                }
                );
+
+            services.AddSignalR();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -86,11 +90,14 @@ namespace Novi
 
             app.UseCors("CORS");
 
+
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chatHub");
             });
         }
     }

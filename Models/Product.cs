@@ -30,6 +30,9 @@ namespace Novi.Models
         [Column("add_to_cart")]
         public bool AddToCart { get; set; }
 
+        [Column("is_auction")]
+        public bool Auction { get; set; }
+
         [Column("number_of_wish")]
         public List<NumberOfWish> NumberOfWish { get; set; }
 
@@ -62,10 +65,8 @@ namespace Novi.Models
         [Column("data")]
         public List<ProductInformationData> Data { get; set; }
 
-        [JsonIgnore]
         [ForeignKey("id_group")]
-        public Group Group { get; set; }
-
+        public int Group { get; set; }
 
         [ForeignKey("id_user")]
         public User User { get; set; }

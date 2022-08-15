@@ -3,49 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Novi.Models;
 
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    partial class CategoryContextModelSnapshot : ModelSnapshot
+    [Migration("20220803123524_V24")]
+    partial class V24
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0");
-
-            modelBuilder.Entity("Novi.Models.Auction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_auction")
-                        .UseIdentityColumn();
-
-                    b.Property<int>("MinimumPrice")
-                        .HasColumnType("int")
-                        .HasColumnName("price");
-
-                    b.Property<int>("Product")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("id_user")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("id_user");
-
-                    b.ToTable("Auction");
-                });
 
             modelBuilder.Entity("Novi.Models.Category", b =>
                 {
@@ -253,10 +227,6 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("add_to_cart");
 
-                    b.Property<bool>("Auction")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_auction");
-
                     b.Property<bool>("Buy")
                         .HasColumnType("bit")
                         .HasColumnName("buy");
@@ -461,15 +431,6 @@ namespace DiplomskiServer.Migrations
                         .HasFilter("[id_user] IS NOT NULL");
 
                     b.ToTable("UserInformation");
-                });
-
-            modelBuilder.Entity("Novi.Models.Auction", b =>
-                {
-                    b.HasOne("Novi.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("id_user");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Novi.Models.Category", b =>
