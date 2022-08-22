@@ -48,7 +48,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Product>>> FetchProducts(int id_group)
         {
-            List<Product> pr = await Context.Products.Where(p => p.Group == id_group && p.Buy == false).Include(p => p.Picture).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Group == id_group && p.Buy == false).Include(p => p.Picture).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().ToListAsync();
             return pr;
         }
 
@@ -62,11 +62,21 @@ namespace Novi.Controllers
             return pr;
         }
 
+
+        [Route("GetUserProducts/{id_user}")]
+        [HttpGet]
+        public async Task<ActionResult<List<Product>>> GetUserProducts(int id_user)
+        {
+            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).Include(p => p.Place).AsSplitQuery().ToListAsync();
+            return pr;
+        }
+
+
         [Route("FetchSingleProduct")]
         [HttpGet]
         public async Task<ActionResult<Product>> FetchSingleProduct(int id_product)
         {
-            Product pr = await Context.Products.Where(p => p.Id == id_product).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).FirstAsync();
+            Product pr = await Context.Products.Where(p => p.Id == id_product).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().FirstAsync();
             return pr;
         }
 
@@ -75,7 +85,7 @@ namespace Novi.Controllers
         public async Task<List<Product>> FetchMostWanted()
         {
 
-            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfWish.Count).Take(20).Include(p => p.NumberOfWish).Include(p => p.Picture).ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfWish.Count).Include(p => p.NumberOfWish).Include(p => p.Picture).Take(20).AsSplitQuery().ToListAsync();
             return pr;
         }
 
@@ -83,7 +93,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<List<Product>> FetchLikeProduct()
         {
-            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count).Take(20).Include(p => p.NumberOfLike).Include(p => p.Picture).ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count).Take(20).Include(p => p.NumberOfLike).Include(p => p.Picture).AsSplitQuery().ToListAsync();
             return pr;
         }
 
@@ -91,7 +101,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<List<Group>> FetchPopularGroup()
         {
-            List<Group> gr = await Context.Groups.OrderByDescending(g => g.Products.Sum(nm => nm.NumberOfViewers.Count)).Take(5).ToListAsync();
+            List<Group> gr = await Context.Groups.OrderByDescending(g => g.Products.Select(p => p.NumberOfViewers.Count).Count()).Include(c => c.Picture).Take(5).AsSplitQuery().ToListAsync();
             return gr;
         }
 

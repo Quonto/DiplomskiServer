@@ -58,7 +58,7 @@ namespace Novi.Controllers
             return g;
         }
 
-        [Route("FetchGroup")]
+        [Route("FetchGroup/{id_group}")]
         [HttpGet]
         public async Task<ActionResult<Group>> FetchGroup(int id_group)
         {
