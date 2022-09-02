@@ -39,6 +39,7 @@ namespace Novi.Controllers
         }
 
 
+
         [Route("InputAuction/{id_product}")]
         [HttpPost]
         public async Task<IActionResult> InputAuction(int id_product, [FromBody] Auction auction)
@@ -97,7 +98,50 @@ namespace Novi.Controllers
             return Ok();
         }
 
+        [Route("UpdateAuction")]
+        [HttpPut]
+        public async Task<ActionResult<Auction>> UpdateAuction([FromBody] Auction auction)
+        {
+            Auction au = await Context.Auction.Where(au => au.Id == auction.Id).Include(a => a.User).FirstAsync();
 
+            au.Time = auction.Time;
+            au.MinimumPrice = auction.MinimumPrice;
+            au.User = auction.User;
+
+
+            Context.Auction.Update(au);
+            await Context.SaveChangesAsync();
+
+            return au;
+        }
+
+
+
+        [Route("UpdateAuctionProduct")]
+        [HttpPut]
+        public async Task<System.TimeSpan> UpdateAuctionProduct()
+        {
+            List<Product> products = await Context.Products.Where(p => p.Auction == true).ToListAsync();
+            var currentDate = DateTime.Now;
+            var leftTime = System.TimeSpan.Zero;
+
+            foreach (Product product in products)
+            {
+                Auction auction = await Context.Auction.Where(a => a.Product == product.Id).FirstAsync();
+
+
+
+                leftTime = auction.Time.Subtract(currentDate);
+                if (leftTime.TotalSeconds < 0)
+                {
+                    product.Buy = true;
+                    Context.Products.Update(product);
+                    await Context.SaveChangesAsync();
+                }
+            }
+
+            return leftTime;
+        }
 
     }
 }

@@ -38,7 +38,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Category>>> FetchCategoriesAndGroups()
         {
-            List<Category> c = await Context.Categories.Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation).ToListAsync();
+            List<Category> c = await Context.Categories.Include(c => c.Picture).Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation).AsSplitQuery().ToListAsync();
             return c;
         }
 
@@ -50,27 +50,12 @@ namespace Novi.Controllers
             return c;
         }
 
-        [Route("FetchGroups")]
-        [HttpGet]
-        public async Task<ActionResult<List<Group>>> FetchGroups(int id_category)
-        {
-            List<Group> g = await Context.Groups.Include(p => p.Picture).Where(c => c.Category.Id == id_category).ToListAsync();
-            return g;
-        }
-
-        [Route("FetchGroup/{id_group}")]
-        [HttpGet]
-        public async Task<ActionResult<Group>> FetchGroup(int id_group)
-        {
-            Group g = await Context.Groups.Where(pi => pi.Id == id_group).Include(p => p.ProductInformation).FirstAsync();
-            return g;
-        }
 
         [Route("FetchPlace")]
         [HttpGet]
         public async Task<ActionResult<List<Place>>> FetchPlace()
         {
-            List<Place> p = await Context.Place.ToListAsync();
+            List<Place> p = await Context.Place.AsSplitQuery().ToListAsync();
             return p;
         }
 
@@ -83,42 +68,12 @@ namespace Novi.Controllers
             await Context.SaveChangesAsync();
         }
 
-        [Route("WriteGroup")]
-        [HttpPost]
-        public async Task WriteGroup(int id_category, [FromBody] Group groups)
-        {
-            Category ca = await Context.Categories.FindAsync(id_category);
-            groups.Category = ca;
-
-            Context.Groups.Add(groups);
-            await Context.SaveChangesAsync();
-        }
-
 
         [Route("UpdateCategory")]
         [HttpPut]
         public async Task UpdateCategory([FromBody] Category category)
         {
             Context.Categories.Update(category);
-            await Context.SaveChangesAsync();
-        }
-
-
-        [Route("RemoveProductInformation/{id_product_information}")]
-        [HttpDelete]
-        public async Task RemoveProductInformation(int id_product_information)
-        {
-            ProductInformation pi = await Context.ProductInformation.FindAsync(id_product_information);
-            Context.Remove(pi);
-            await Context.SaveChangesAsync();
-        }
-
-        [Route("RemoveGroup/{id_group}")]
-        [HttpDelete]
-        public async Task RemoveGroup(int id_group)
-        {
-            Group group = await Context.Groups.FindAsync(id_group);
-            Context.Remove(group);
             await Context.SaveChangesAsync();
         }
 
@@ -130,33 +85,5 @@ namespace Novi.Controllers
             Context.Remove(category);
             await Context.SaveChangesAsync();
         }
-
-
-        /*
-                [Route("PreuzmiJedanProizvod/{id}")]
-                [HttpGet]
-                public async Task<List<Product>> PreuzmiJedanProizvod(int id)
-                {
-                    Product pr = await Context.Products.FindAsync(id);
-                    return await Context.Products.Where(pr => pr.Id == id).Include(p => p.Picture).ToListAsync();
-                }
-
-                [Route("UpdateProduct")]
-                [HttpPut]
-                public async Task UpdateProduct([FromBody] Product product)
-                {
-                    Context.Update<Product>(product);
-                    await Context.SaveChangesAsync();
-                }
-
-                [Route("DeleteProduct/{id}")]
-                [HttpDelete]
-                public async Task DeleteProduct(int id)
-                {
-                    Product product = await Context.Products.FindAsync(id);
-                    Context.Remove(product);
-                    await Context.SaveChangesAsync();
-                }
-        */
     }
 }

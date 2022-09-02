@@ -59,19 +59,6 @@ namespace Novi
             {
                 options.UseSqlServer(Configuration.GetConnectionString("ProductCS"));
             });
-            /*
-            services.AddControllersWithViews().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            });
-            */
-            /*
-            services.AddControllersWithViews().AddJsonOptions(o =>
-         {
-             o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-             o.JsonSerializerOptions.MaxDepth = 0;
-         });
-        */
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

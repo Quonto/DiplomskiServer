@@ -35,14 +35,6 @@ namespace Novi.Controllers
             return ko;
         }
 
-        [Route("FetchProductInformation")]
-        [HttpGet]
-        public async Task<ActionResult<List<ProductInformation>>> FetchProductInformation(int id_group)
-        {
-            List<ProductInformation> pr = await Context.ProductInformation.Where(g => g.Groups.Id == id_group).ToListAsync();
-            return pr;
-        }
-
 
         [Route("FetchProducts")]
         [HttpGet]
@@ -95,14 +87,6 @@ namespace Novi.Controllers
         {
             List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count).Take(20).Include(p => p.NumberOfLike).Include(p => p.Picture).AsSplitQuery().ToListAsync();
             return pr;
-        }
-
-        [Route("FetchPopularGroup")]
-        [HttpGet]
-        public async Task<List<Group>> FetchPopularGroup()
-        {
-            List<Group> gr = await Context.Groups.OrderByDescending(g => g.Products.Select(p => p.NumberOfViewers.Count).Count()).Include(c => c.Picture).Take(5).AsSplitQuery().ToListAsync();
-            return gr;
         }
 
 
@@ -184,9 +168,9 @@ namespace Novi.Controllers
             await Context.SaveChangesAsync();
         }
 
-        [Route("UpdateProduct")]
+        [Route("UpdateAuctionProduct")]
         [HttpPut]
-        public async Task<ActionResult> UpdateProduct([FromBody] Product product)
+        public async Task<ActionResult> UpdateAuctionProduct([FromBody] Product product)
         {
             Product p = await Context.Products.FindAsync(product.Id);
 
@@ -198,6 +182,7 @@ namespace Novi.Controllers
             p.Buy = product.Buy;
             p.Price = product.Price;
             p.Date = product.Date;
+            p.BuyUser = product.BuyUser;
 
             Context.Products.Update(p);
             await Context.SaveChangesAsync();
@@ -205,28 +190,82 @@ namespace Novi.Controllers
             return Ok();
         }
 
-        [Route("UpdateAuction")]
+        [Route("UpdateProduct")]
         [HttpPut]
-        public async Task<ActionResult> UpdateAuction([FromBody] Auction auction)
+        public async Task<ActionResult<Product>> UpdateProduct([FromBody] Product product)
         {
-            Auction au = await Context.Auction.FindAsync(auction.Id);
+            Product p = await Context.Products.FindAsync(product.Id);
 
-            if (au == null)
+            if (p == null)
             {
                 return NotFound();
             }
 
-            au.Time = auction.Time;
-            au.MinimumPrice = auction.MinimumPrice;
-            au.User = auction.User;
+            PlaceProductUser pl = await Context.PlaceProductUser.Where(pl => pl.Product.Id == p.Id).FirstAsync();
+
+            if (pl == null)
+            {
+                return NotFound();
+            }
+
+            pl.Name = product.Place.Name;
 
 
-            Context.Auction.Update(au);
+            Context.PlaceProductUser.Update(pl);
+
+
+            p.Name = product.Name;
+            p.Price = product.Price;
+            p.Phone = product.Phone;
+            p.Details = product.Details;
+            p.Date = product.Date;
+
+            Context.Products.Update(p);
+
+
+            List<Image> imageProduct = await Context.Images.Where(p => p.Product.Id == product.Id).ToListAsync();
+
+            foreach (Image img in imageProduct)
+            {
+                Context.Remove(img);
+                await Context.SaveChangesAsync();
+            }
+
+            foreach (Image img in product.Picture)
+            {
+                Image image = new Image();
+                image.Data = img.Data;
+                image.Name = img.Name;
+                image.Product = p;
+                Context.Images.Add(image);
+                await Context.SaveChangesAsync();
+            }
+
+
+
+
+            foreach (ProductInformationData pi in product.Data)
+            {
+                ProductInformationData pid = await Context.ProductInformationData.FindAsync(pi.Id);
+
+                if (pid == null)
+                {
+                    return NotFound();
+                }
+
+                pid.Data = pi.Data;
+
+                Context.ProductInformationData.Update(pid);
+
+            }
             await Context.SaveChangesAsync();
 
-            return Ok();
-        }
 
+            Product backProduct = await Context.Products.Where(prod => prod.Id == p.Id).Include(p => p.Data).Include(p => p.Data).ThenInclude(d => d.ProductInformation).Include(p => p.NumberOfLike).Include(p => p.NumberOfViewers).Include(p => p.NumberOfWish).Include(p => p.Picture).Include(p => p.Place).Include(p => p.Reviews).ThenInclude(r => r.User).Include(p => p.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).AsSplitQuery().FirstAsync();
+
+
+            return backProduct;
+        }
 
 
         [Route("UpdateUserPlace/{id_place}")]
@@ -248,6 +287,61 @@ namespace Novi.Controllers
         }
 
 
+        [Route("UpdateUserPicture")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateUserPicture([FromBody] User user)
+        {
+            User us = await Context.Users.FindAsync(user.ID);
+
+            if (us == null)
+            {
+                return NotFound();
+            }
+
+            us.Picture = user.Picture;
+
+            Context.Users.Update(us);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
+        [Route("UpdateUserProductInformation")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateUserProductInformation([FromBody] UserInformation userInformation)
+        {
+            UserInformation ui = await Context.UserInformation.FindAsync(userInformation.Id);
+
+            if (ui == null)
+            {
+                return NotFound();
+            }
+
+            PlaceProductUser pl = await Context.PlaceProductUser.Where(pl => pl.UserInformation.Id == ui.Id).FirstAsync();
+
+            if (pl == null)
+            {
+                return NotFound();
+            }
+
+            pl.Name = userInformation.Place.Name;
+
+            Context.PlaceProductUser.Update(pl);
+            await Context.SaveChangesAsync();
+
+            ui.Data = userInformation.Data;
+            ui.NameUser = userInformation.NameUser;
+            ui.Phone = userInformation.Phone;
+            ui.Surename = userInformation.Surename;
+
+
+            Context.UserInformation.Update(ui);
+            await Context.SaveChangesAsync();
+            return Ok();
+        }
+
+
         [Route("InputUser")]
         [HttpPost]
         public async Task InputUser([FromBody] User user)
@@ -265,26 +359,6 @@ namespace Novi.Controllers
 
             Context.UserInformation.Add(informations);
             await Context.SaveChangesAsync();
-        }
-
-
-        [Route("InputProductInformation")]
-        [HttpPost]
-        public async Task<ActionResult<int>> InputProductInformation(int id_group, [FromBody] ProductInformation productInformation)
-        {
-            Group gr = await Context.Groups.FindAsync(id_group);
-            if (gr == null)
-            {
-                return NotFound();
-            }
-
-            productInformation.Groups = gr;
-
-            Context.ProductInformation.Add(productInformation);
-            await Context.SaveChangesAsync();
-
-            ProductInformation pr = Context.ProductInformation.Where(pr => pr.Name == productInformation.Name).FirstOrDefault();
-            return pr.Id;
         }
 
 
@@ -469,14 +543,6 @@ namespace Novi.Controllers
             await Context.SaveChangesAsync();
         }
 
-        [Route("RemoveProductInformationData/{id_product_information_data}")]
-        [HttpDelete]
-        public async Task RemoveProductInformaionData(int id_product_information_data)
-        {
-            ProductInformationData pid = await Context.ProductInformationData.FindAsync(id_product_information_data);
-            Context.Remove(pid);
-            await Context.SaveChangesAsync();
-        }
 
         [Route("RemoveReview/{id_review}")]
         [HttpDelete]
@@ -501,6 +567,15 @@ namespace Novi.Controllers
         public async Task RemoveUser(int id_user)
         {
             User user = await Context.Users.FindAsync(id_user);
+
+            List<UserInformation> userInf = await Context.UserInformation.Where(ui => ui.User == user).ToListAsync();
+
+            foreach (UserInformation ui in userInf)
+            {
+                Context.Remove(ui);
+            }
+
+
             Context.Remove(user);
             await Context.SaveChangesAsync();
         }
