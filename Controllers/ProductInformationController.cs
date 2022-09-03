@@ -21,25 +21,7 @@ namespace Novi.Controllers
             Context = context;
         }
 
-        [Route("FetchProductInformation")]
-        [HttpGet]
-        public async Task<ActionResult<List<ProductInformation>>> FetchProductInformation(int id_group)
-        {
-            List<ProductInformation> pr = await Context.ProductInformation.Where(g => g.Groups.Id == id_group).ToListAsync();
-            return pr;
-        }
-
-
-        [Route("RemoveProductInformation/{id_product_information}")]
-        [HttpDelete]
-        public async Task RemoveProductInformation(int id_product_information)
-        {
-            ProductInformation pi = await Context.ProductInformation.FindAsync(id_product_information);
-            Context.Remove(pi);
-            await Context.SaveChangesAsync();
-        }
-
-        [Route("InputProductInformation")]
+        [Route("InputProductInformation/{id_group}")]
         [HttpPost]
         public async Task<ActionResult<int>> InputProductInformation(int id_group, [FromBody] ProductInformation productInformation)
         {
@@ -58,6 +40,25 @@ namespace Novi.Controllers
             return pr.Id;
         }
 
+        [Route("FetchProductInformation/{id_group}")]
+        [HttpGet]
+        public async Task<ActionResult<List<ProductInformation>>> FetchProductInformation(int id_group)
+        {
+            List<ProductInformation> pr = await Context.ProductInformation.Where(g => g.Groups.Id == id_group).ToListAsync();
+            return pr;
+        }
+
+
+        [Route("RemoveProductInformation/{id_product_information}")]
+        [HttpDelete]
+        public async Task RemoveProductInformation(int id_product_information)
+        {
+            ProductInformation pi = await Context.ProductInformation.FindAsync(id_product_information);
+            Context.Remove(pi);
+            await Context.SaveChangesAsync();
+        }
+
+
         [Route("RemoveProductInformationData/{id_product_information_data}")]
         [HttpDelete]
         public async Task RemoveProductInformaionData(int id_product_information_data)
@@ -66,9 +67,6 @@ namespace Novi.Controllers
             Context.Remove(pid);
             await Context.SaveChangesAsync();
         }
-
-
-
 
     }
 }

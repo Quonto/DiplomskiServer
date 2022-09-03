@@ -21,6 +21,21 @@ namespace Novi.Controllers
             Context = context;
         }
 
+        [Route("InputCategory")]
+        [HttpPost]
+        public async Task<Category> InputCategory([FromBody] Category category)
+        {
+            Category newCategory = new Category();
+
+            newCategory.Name = category.Name;
+            newCategory.Picture = category.Picture;
+
+            Context.Categories.Add(newCategory);
+            await Context.SaveChangesAsync();
+
+            return newCategory;
+        }
+
 
         [Route("FetchAllCategories")]
         [HttpGet]
@@ -49,25 +64,6 @@ namespace Novi.Controllers
             List<Category> c = await Context.Categories.Include(p => p.Picture).ToListAsync();
             return c;
         }
-
-
-        [Route("FetchPlace")]
-        [HttpGet]
-        public async Task<ActionResult<List<Place>>> FetchPlace()
-        {
-            List<Place> p = await Context.Place.AsSplitQuery().ToListAsync();
-            return p;
-        }
-
-
-        [Route("WriteCategory")]
-        [HttpPost]
-        public async Task WriteCategory([FromBody] Category category)
-        {
-            Context.Categories.Add(category);
-            await Context.SaveChangesAsync();
-        }
-
 
         [Route("UpdateCategory")]
         [HttpPut]

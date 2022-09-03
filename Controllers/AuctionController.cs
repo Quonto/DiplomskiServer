@@ -26,6 +26,18 @@ namespace Novi.Controllers
             HubContext = hubContext;
         }
 
+        [Route("InputAuction/{id_product}")]
+        [HttpPost]
+        public async Task<IActionResult> InputAuction(int id_product, [FromBody] Auction auction)
+        {
+            auction.Product = id_product;
+            Context.Auction.Add(auction);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
         [Route("FetchAuction/{id_product}")]
         [HttpGet]
         public async Task<ActionResult<Auction>> FetchAuction(int id_product)
@@ -39,21 +51,9 @@ namespace Novi.Controllers
         }
 
 
-
-        [Route("InputAuction/{id_product}")]
-        [HttpPost]
-        public async Task<IActionResult> InputAuction(int id_product, [FromBody] Auction auction)
-        {
-            auction.Product = id_product;
-            Context.Auction.Add(auction);
-            await Context.SaveChangesAsync();
-
-            return Ok();
-        }
-
         [Route("UpdateAuction/{id_user}")]
         [HttpPut]
-        public async Task<IActionResult> UpdateAuction(int id_user, [FromBody] Product product)
+        public async Task<ActionResult> UpdateAuction(int id_user, [FromBody] Product product)
         {
             Product p = await Context.Products.Where(p => p.Id == product.Id).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).FirstAsync();
             if (p == null)
@@ -74,9 +74,11 @@ namespace Novi.Controllers
                 return BadRequest();
             }
 
-            if (au.Time.Minute < 5)
+            var currentDate = DateTime.Now;
+
+            if (au.Time.Subtract(currentDate).TotalMinutes < 5.0)
             {
-                au.Time.AddMinutes(10);
+                au.Time = au.Time.AddMinutes(10.0);
             }
 
 
@@ -114,7 +116,6 @@ namespace Novi.Controllers
 
             return au;
         }
-
 
 
         [Route("UpdateAuctionProduct")]

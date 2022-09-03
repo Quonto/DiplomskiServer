@@ -21,7 +21,18 @@ namespace Novi.Controllers
             Context = context;
         }
 
-        [Route("FetchGroups")]
+        [Route("WriteGroup/{id_category}")]
+        [HttpPost]
+        public async Task WriteGroup(int id_category, [FromBody] Group groups)
+        {
+            Category ca = await Context.Categories.FindAsync(id_category);
+            groups.Category = ca;
+
+            Context.Groups.Add(groups);
+            await Context.SaveChangesAsync();
+        }
+
+        [Route("FetchGroups/{id_category}")]
         [HttpGet]
         public async Task<ActionResult<List<Group>>> FetchGroups(int id_category)
         {
@@ -45,18 +56,6 @@ namespace Novi.Controllers
             return gr;
         }
 
-
-
-        [Route("WriteGroup")]
-        [HttpPost]
-        public async Task WriteGroup(int id_category, [FromBody] Group groups)
-        {
-            Category ca = await Context.Categories.FindAsync(id_category);
-            groups.Category = ca;
-
-            Context.Groups.Add(groups);
-            await Context.SaveChangesAsync();
-        }
 
         [Route("RemoveGroup/{id_group}")]
         [HttpDelete]
