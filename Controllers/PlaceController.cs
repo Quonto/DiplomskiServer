@@ -41,6 +41,33 @@ namespace Novi.Controllers
             return p;
         }
 
+        [Route("UpdatePlace")]
+        [HttpPut]
+        public async Task<ActionResult> UpdatePlace([FromBody] Place place)
+        {
+
+            Place curentPlace = await Context.Place.Where(p => p.Id == place.Id).FirstAsync();
+            if (curentPlace == null)
+            { return NotFound(); }
+
+            List<PlaceProductUser> places = await Context.PlaceProductUser.Where(p => p.Name == curentPlace.Name && p.UserInformation == null).ToListAsync();
+
+            foreach (PlaceProductUser p in places)
+            {
+                p.Name = place.Name;
+                Context.PlaceProductUser.Update(p);
+
+            }
+            curentPlace.Name = place.Name;
+
+            Context.Place.Update(curentPlace);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
+
         [Route("UpdateUserPlace/{id_place}")]
         [HttpPut]
         public async Task<ActionResult<int>> UpdateUserPlace(int id_place, [FromBody] User user)

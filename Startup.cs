@@ -20,7 +20,6 @@ using System.Text.Json;
 using Novi.Hubs;
 
 
-
 namespace Novi
 {
     public class Startup

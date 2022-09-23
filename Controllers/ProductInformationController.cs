@@ -44,17 +44,27 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ProductInformation>>> FetchProductInformation(int id_group)
         {
-            List<ProductInformation> pr = await Context.ProductInformation.Where(g => g.Groups.Id == id_group).ToListAsync();
+            List<ProductInformation> pr = await Context.ProductInformation.Where(g => g.Groups.Id == id_group && g.Delete == false).ToListAsync();
             return pr;
         }
 
+        [Route("UpdateProductInformation")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateProductInformation([FromBody] ProductInformation productInformation)
+        {
+            Context.ProductInformation.Update(productInformation);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
 
         [Route("RemoveProductInformation/{id_product_information}")]
         [HttpDelete]
         public async Task RemoveProductInformation(int id_product_information)
         {
             ProductInformation pi = await Context.ProductInformation.FindAsync(id_product_information);
-            Context.Remove(pi);
+            pi.Delete = true;
+            Context.ProductInformation.Update(pi);
             await Context.SaveChangesAsync();
         }
 

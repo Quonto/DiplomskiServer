@@ -23,13 +23,19 @@ namespace Novi.Controllers
 
         [Route("WriteGroup/{id_category}")]
         [HttpPost]
-        public async Task WriteGroup(int id_category, [FromBody] Group groups)
+        public async Task<ActionResult<Group>> WriteGroup(int id_category, [FromBody] Group groups)
         {
             Category ca = await Context.Categories.FindAsync(id_category);
-            groups.Category = ca;
 
-            Context.Groups.Add(groups);
+            Group g = new Group();
+
+            g.Name = groups.Name;
+            g.Picture = groups.Picture;
+            g.Category = ca;
+
+            Context.Groups.Add(g);
             await Context.SaveChangesAsync();
+            return g;
         }
 
         [Route("FetchGroups/{id_category}")]
@@ -44,7 +50,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<Group>> FetchGroup(int id_group)
         {
-            Group g = await Context.Groups.Where(pi => pi.Id == id_group).Include(p => p.ProductInformation).FirstAsync();
+            Group g = await Context.Groups.Where(pi => pi.Id == id_group).Include(p => p.ProductInformation.Where(p => p.Delete == false)).FirstAsync();
             return g;
         }
 
@@ -56,6 +62,15 @@ namespace Novi.Controllers
             return gr;
         }
 
+        [Route("UpdateGroup")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateGroup([FromBody] Group group)
+        {
+            Context.Groups.Update(group);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
 
         [Route("RemoveGroup/{id_group}")]
         [HttpDelete]

@@ -143,9 +143,24 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Product>>> FetchProducts(int id_group)
         {
-            List<Product> pr = await Context.Products.Where(p => p.Group == id_group && p.Buy == false).Include(p => p.Picture).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Group == id_group && p.Buy == false).Include(p => p.Picture).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().ToListAsync();
             return pr;
         }
+
+        [Route("FetchProductName/{id_group}/{product_name}")]
+        [HttpGet]
+        public async Task<ActionResult<List<Product>>> FetchProductName(int id_group, string product_name)
+        {
+
+            if (product_name == "*")
+            {
+                return new List<Product>();
+            }
+
+            List<Product> pr = await Context.Products.Where(p => p.Group == id_group && p.Buy == false && p.Name.Contains(product_name)).Include(p => p.Picture).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.NumberOfViewers).Include(p => p.Reviews).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(ui => ui.UserInformation).Include(p => p.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().ToListAsync();
+            return pr;
+        }
+
 
         [Route("FetchUserProducts/{id_user}")]
         [HttpGet]

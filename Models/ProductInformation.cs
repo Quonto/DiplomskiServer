@@ -16,6 +16,8 @@ namespace Novi.Models
         [MaxLength(255)]
         public string Name { get; set; }
 
+        [Column("delete")]
+        public bool Delete { get; set; }
 
         [JsonIgnore]
         [ForeignKey("id_group")]

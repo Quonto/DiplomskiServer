@@ -41,7 +41,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Category>>> FetchAllCategories()
         {
-            List<Category> c = await Context.Categories.Include(c => c.Groups).Include(c => c.Groups).ThenInclude(c => c.Products).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Picture).Include(c => c.Groups).ThenInclude(p => p.ProductInformation).Include(g => g.Groups).ThenInclude(p => p.ProductInformation).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Reviews).ToListAsync();
+            List<Category> c = await Context.Categories.Include(c => c.Groups).Include(c => c.Groups).ThenInclude(c => c.Products).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Picture).Include(c => c.Groups).ThenInclude(p => p.ProductInformation.Where(pi => pi.Delete == false)).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Reviews).ToListAsync();
             if (c == null)
             {
                 return NotFound();
@@ -53,7 +53,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Category>>> FetchCategoriesAndGroups()
         {
-            List<Category> c = await Context.Categories.Include(c => c.Picture).Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation).AsSplitQuery().ToListAsync();
+            List<Category> c = await Context.Categories.Include(c => c.Picture).Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation.Where(p => p.Delete == false)).Include(g => g.Groups).ThenInclude(p => p.Picture).AsSplitQuery().ToListAsync();
             return c;
         }
 
