@@ -79,6 +79,33 @@ namespace Novi.Controllers
             return r;
         }
 
+        [Route("FetchReviews/{id_user}")]
+        [HttpGet]
+        public async Task<ActionResult<List<Review>>> FetchReviews(int id_user)
+        {
+
+            List<Review> reviews = await Context.Reviews.Where(u => u.User.ID == id_user).Include(u => u.User).ToListAsync();
+
+            if (reviews.Count == 0)
+                return NotFound();
+
+            return reviews;
+        }
+
+        [Route("FetchProductReviews/{id_product}")]
+        [HttpGet]
+        public async Task<ActionResult<List<Review>>> FetchProductReviews(int id_product)
+        {
+
+            List<Review> reviews = await Context.Reviews.Where(u => u.Product.Id == id_product).Include(u => u.User).ToListAsync();
+
+            if (reviews.Count == 0)
+                return NotFound();
+
+            return reviews;
+        }
+
+
 
         [Route("FetchUser")]
         [HttpPost]
@@ -144,6 +171,25 @@ namespace Novi.Controllers
             return Ok();
         }
 
+        [Route("UpdateReview")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateReview([FromBody] Review review)
+        {
+            Review r = await Context.Reviews.FindAsync(review.Id);
+
+            if (r == null)
+            {
+                return NotFound();
+            }
+
+            r.Coment = review.Coment;
+            r.Mark = review.Mark;
+
+            Context.Reviews.Update(r);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
 
         [Route("UpdateUserProductInformation")]
         [HttpPut]
