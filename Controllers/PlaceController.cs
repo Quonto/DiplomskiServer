@@ -25,11 +25,27 @@ namespace Novi.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> InputPlace([FromBody] Place place)
         {
-            Context.Place.Add(place);
+
+
+            Place currentPlace = await Context.Place.Where(p => p.Name == place.Name).FirstOrDefaultAsync();
+
+            if (currentPlace != null)
+            {
+                currentPlace.Delete = false;
+                Context.Place.Update(currentPlace);
+                await Context.SaveChangesAsync();
+                return currentPlace.Id;
+            }
+
+            Place newPlace = new Place();
+            newPlace.Delete = false;
+            newPlace.Name = place.Name;
+
+            Context.Place.Add(newPlace);
             await Context.SaveChangesAsync();
 
-            Place p = await Context.Place.Where(p => p.Name == place.Name).FirstAsync();
-            return p.Id;
+
+            return newPlace.Id;
         }
 
 
@@ -37,8 +53,19 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Place>>> FetchPlace()
         {
-            List<Place> p = await Context.Place.AsSplitQuery().ToListAsync();
+            List<Place> p = await Context.Place.Where(p => p.Delete == false).AsSplitQuery().ToListAsync();
             return p;
+        }
+
+        [Route("RemovePlace/{id_place}")]
+        [HttpDelete]
+        public async Task RemovePlace(int id_place)
+        {
+            Place p = await Context.Place.FindAsync(id_place);
+            p.Delete = true;
+
+            Context.Place.Update(p);
+            await Context.SaveChangesAsync();
         }
 
         [Route("UpdatePlace")]

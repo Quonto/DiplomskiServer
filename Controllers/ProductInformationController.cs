@@ -33,11 +33,27 @@ namespace Novi.Controllers
 
             productInformation.Groups = gr;
 
-            Context.ProductInformation.Add(productInformation);
+            ProductInformation pi = await Context.ProductInformation.Where(pi => pi.Name == productInformation.Name && pi.Groups.Id == gr.Id).FirstOrDefaultAsync();
+
+            if (pi != null)
+            {
+                pi.Delete = false;
+                Context.ProductInformation.Update(pi);
+                await Context.SaveChangesAsync();
+                return pi.Id;
+            }
+
+            ProductInformation curentPI = new ProductInformation();
+
+            curentPI.Delete = false;
+            curentPI.Groups = productInformation.Groups;
+            curentPI.Name = productInformation.Name;
+
+
+            Context.ProductInformation.Add(curentPI);
             await Context.SaveChangesAsync();
 
-            ProductInformation pr = Context.ProductInformation.Where(pr => pr.Name == productInformation.Name).FirstOrDefault();
-            return pr.Id;
+            return curentPI.Id;
         }
 
         [Route("FetchProductInformation/{id_group}")]

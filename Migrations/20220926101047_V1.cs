@@ -13,7 +13,8 @@ namespace DiplomskiServer.Migrations
                 {
                     id_place = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                    name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    delete = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,6 +29,7 @@ namespace DiplomskiServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     is_admin = table.Column<bool>(type: "bit", nullable: false),
                     username = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    delete = table.Column<bool>(type: "bit", nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     password = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     picture = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -35,6 +37,28 @@ namespace DiplomskiServer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.id_user);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Auction",
+                columns: table => new
+                {
+                    id_auction = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    price = table.Column<int>(type: "int", nullable: false),
+                    Product = table.Column<int>(type: "int", nullable: false),
+                    id_user = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Auction", x => x.id_auction);
+                    table.ForeignKey(
+                        name: "FK_Auction_User_id_user",
+                        column: x => x.id_user,
+                        principalTable: "User",
+                        principalColumn: "id_user",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,7 +93,8 @@ namespace DiplomskiServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     PictureId = table.Column<int>(type: "int", nullable: true),
-                    id_category = table.Column<int>(type: "int", nullable: true)
+                    id_category = table.Column<int>(type: "int", nullable: true),
+                    delete = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -84,21 +109,24 @@ namespace DiplomskiServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     price = table.Column<int>(type: "int", nullable: false),
+                    delete = table.Column<bool>(type: "bit", nullable: false),
                     buy = table.Column<bool>(type: "bit", nullable: false),
                     id_user_buy = table.Column<int>(type: "int", nullable: false),
                     add_to_cart = table.Column<bool>(type: "bit", nullable: false),
+                    is_auction = table.Column<bool>(type: "bit", nullable: false),
                     details = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    id_group = table.Column<int>(type: "int", nullable: true),
-                    id_user = table.Column<int>(type: "int", nullable: true)
+                    Group = table.Column<int>(type: "int", nullable: false),
+                    id_user = table.Column<int>(type: "int", nullable: true),
+                    GroupId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Product", x => x.id_product);
                     table.ForeignKey(
-                        name: "FK_Product_Group_id_group",
-                        column: x => x.id_group,
+                        name: "FK_Product_Group_GroupId",
+                        column: x => x.GroupId,
                         principalTable: "Group",
                         principalColumn: "id_group",
                         onDelete: ReferentialAction.Restrict);
@@ -117,6 +145,7 @@ namespace DiplomskiServer.Migrations
                     id_product_information = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    delete = table.Column<bool>(type: "bit", nullable: false),
                     id_group = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -301,6 +330,7 @@ namespace DiplomskiServer.Migrations
                     id_category = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    delete = table.Column<bool>(type: "bit", nullable: false),
                     PictureId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -313,6 +343,11 @@ namespace DiplomskiServer.Migrations
                         principalColumn: "id_image",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Auction_id_user",
+                table: "Auction",
+                column: "id_user");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Category_PictureId",
@@ -364,9 +399,9 @@ namespace DiplomskiServer.Migrations
                 filter: "[id_user_information] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_id_group",
+                name: "IX_Product_GroupId",
                 table: "Product",
-                column: "id_group");
+                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_id_user",
@@ -425,12 +460,19 @@ namespace DiplomskiServer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
+                name: "FK_Product_User_id_user",
+                table: "Product");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_Category_Image_PictureId",
                 table: "Category");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Group_Image_PictureId",
                 table: "Group");
+
+            migrationBuilder.DropTable(
+                name: "Auction");
 
             migrationBuilder.DropTable(
                 name: "NumberOfLike");
@@ -460,6 +502,9 @@ namespace DiplomskiServer.Migrations
                 name: "ProductInformation");
 
             migrationBuilder.DropTable(
+                name: "User");
+
+            migrationBuilder.DropTable(
                 name: "Image");
 
             migrationBuilder.DropTable(
@@ -467,9 +512,6 @@ namespace DiplomskiServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Group");
-
-            migrationBuilder.DropTable(
-                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Category");

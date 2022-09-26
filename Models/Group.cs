@@ -16,11 +16,15 @@ namespace Novi.Models
         [MaxLength(255)]
         public string Name { get; set; }
 
+
+
         [Column("picture_group")]
         public Image Picture { get; set; }
 
         [Column("products")]
         public virtual List<Product> Products { get; set; }
+
+
 
         [Column("information")]
         public virtual List<ProductInformation> ProductInformation { get; set; }
@@ -28,6 +32,9 @@ namespace Novi.Models
         [JsonIgnore]
         [ForeignKey("id_category")]
         public Category Category { get; set; }
+
+        [Column("delete")]
+        public virtual bool Delete { get; set; }
 
     }
 }

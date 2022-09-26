@@ -25,8 +25,21 @@ namespace Novi.Controllers
         [HttpPost]
         public async Task<Category> InputCategory([FromBody] Category category)
         {
+            Category currentCategory = await Context.Categories.Where(c => c.Name == category.Name).FirstOrDefaultAsync();
+
+            if (currentCategory != null)
+            {
+                currentCategory.Delete = false;
+                currentCategory.Picture = category.Picture;
+                Context.Categories.Update(currentCategory);
+                await Context.SaveChangesAsync();
+                return currentCategory;
+
+            }
+
             Category newCategory = new Category();
 
+            newCategory.Delete = false;
             newCategory.Name = category.Name;
             newCategory.Picture = category.Picture;
 
@@ -41,7 +54,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Category>>> FetchAllCategories()
         {
-            List<Category> c = await Context.Categories.Include(c => c.Groups).Include(c => c.Groups).ThenInclude(c => c.Products).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Picture).Include(c => c.Groups).ThenInclude(p => p.ProductInformation.Where(pi => pi.Delete == false)).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Reviews).ToListAsync();
+            List<Category> c = await Context.Categories.Where(c => c.Delete == false).Include(c => c.Groups).Include(c => c.Groups).ThenInclude(c => c.Products).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Picture).Include(c => c.Groups).ThenInclude(p => p.ProductInformation.Where(pi => pi.Delete == false)).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Reviews).ToListAsync();
             if (c == null)
             {
                 return NotFound();
@@ -53,7 +66,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Category>>> FetchCategoriesAndGroups()
         {
-            List<Category> c = await Context.Categories.Include(c => c.Picture).Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation.Where(p => p.Delete == false)).Include(g => g.Groups).ThenInclude(p => p.Picture).AsSplitQuery().ToListAsync();
+            List<Category> c = await Context.Categories.Where(c => c.Delete == false).Include(c => c.Picture).Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation.Where(p => p.Delete == false)).Include(g => g.Groups).ThenInclude(p => p.Picture).AsSplitQuery().ToListAsync();
             return c;
         }
 
@@ -61,7 +74,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Category>>> FetchCategories()
         {
-            List<Category> c = await Context.Categories.Include(p => p.Picture).ToListAsync();
+            List<Category> c = await Context.Categories.Where(c => c.Delete == false).Include(p => p.Picture).ToListAsync();
             return c;
         }
 
@@ -78,7 +91,9 @@ namespace Novi.Controllers
         public async Task RemoveCategory(int id_category)
         {
             Category category = await Context.Categories.FindAsync(id_category);
-            Context.Remove(category);
+
+            category.Delete = true;
+            Context.Categories.Update(category);
             await Context.SaveChangesAsync();
         }
     }

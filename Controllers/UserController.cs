@@ -24,10 +24,19 @@ namespace Novi.Controllers
 
         [Route("InputUser")]
         [HttpPost]
-        public async Task InputUser([FromBody] User user)
+        public async Task<ActionResult> InputUser([FromBody] User user)
         {
+            User u = await Context.Users.Where(u => u.Username == user.Username).FirstOrDefaultAsync();
+
+            if (u != null)
+            {
+                return BadRequest("User exist");
+
+            }
+
             Context.Users.Add(user);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("InputUserInformation/{id_user}")]
@@ -76,7 +85,7 @@ namespace Novi.Controllers
         public async Task<ActionResult<User>> FetchUser([FromBody] User user)
         {
 
-            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstAsync();
+            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password && u.Delete == false).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstOrDefaultAsync();
 
             if (ko == null)
                 return NotFound();
@@ -93,7 +102,21 @@ namespace Novi.Controllers
                 return NotFound();
             }
 
-            User u = await Context.Users.Where(u => u.ID == id_user).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).FirstAsync();
+            User u = await Context.Users.Where(u => u.ID == id_user && u.Delete == false).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).FirstAsync();
+            if (u == null)
+            {
+                return BadRequest("Product does not exist");
+            }
+            return u;
+        }
+
+        [Route("FetchAllUsers")]
+        [HttpGet]
+        public async Task<ActionResult<List<User>>> FetchAllUsers()
+        {
+
+
+            List<User> u = await Context.Users.Where(u => u.IsAdmin == false && u.Delete == false).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).ToListAsync();
             if (u == null)
             {
                 return BadRequest("Product does not exist");
@@ -191,16 +214,10 @@ namespace Novi.Controllers
         {
             User user = await Context.Users.FindAsync(id_user);
 
-            List<UserInformation> userInf = await Context.UserInformation.Where(ui => ui.User == user).ToListAsync();
-
-            foreach (UserInformation ui in userInf)
-            {
-                Context.Remove(ui);
-            }
-
-
-            Context.Remove(user);
+            user.Delete = true;
+            Context.Users.Update(user);
             await Context.SaveChangesAsync();
+
         }
 
 

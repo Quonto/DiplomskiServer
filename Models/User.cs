@@ -19,6 +19,8 @@ namespace Novi.Models
         [MaxLength(255)]
         public string Username { get; set; }
 
+        [Column("delete")]
+        public bool Delete { get; set; }
 
         [Column("email")]
         public string Email { get; set; }

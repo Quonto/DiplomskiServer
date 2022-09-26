@@ -21,6 +21,9 @@ namespace Novi.Models
         [Column("price")]
         public int Price { get; set; }
 
+        [Column("delete")]
+        public bool Delete { get; set; }
+
         [Column("buy")]
         public bool Buy { get; set; }
 

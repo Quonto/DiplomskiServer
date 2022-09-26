@@ -10,8 +10,8 @@ using Novi.Models;
 namespace DiplomskiServer.Migrations
 {
     [DbContext(typeof(CategoryContext))]
-    [Migration("20220804102430_V2")]
-    partial class V2
+    [Migration("20220926101047_V1")]
+    partial class V1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,6 +21,34 @@ namespace DiplomskiServer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0");
 
+            modelBuilder.Entity("Novi.Models.Auction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_auction")
+                        .UseIdentityColumn();
+
+                    b.Property<int>("MinimumPrice")
+                        .HasColumnType("int")
+                        .HasColumnName("price");
+
+                    b.Property<int>("Product")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("id_user")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("id_user");
+
+                    b.ToTable("Auction");
+                });
+
             modelBuilder.Entity("Novi.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -28,6 +56,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_category")
                         .UseIdentityColumn();
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
 
                     b.Property<string>("Name")
                         .HasMaxLength(255)
@@ -51,6 +83,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_group")
                         .UseIdentityColumn();
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
 
                     b.Property<string>("Name")
                         .HasMaxLength(255)
@@ -173,6 +209,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_place")
                         .UseIdentityColumn();
 
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
@@ -242,6 +282,10 @@ namespace DiplomskiServer.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
+
                     b.Property<string>("Details")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("details");
@@ -284,6 +328,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_product_information")
                         .UseIdentityColumn();
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
 
                     b.Property<string>("Name")
                         .HasMaxLength(255)
@@ -370,6 +418,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_user")
                         .UseIdentityColumn();
 
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("email");
@@ -435,6 +487,15 @@ namespace DiplomskiServer.Migrations
                         .HasFilter("[id_user] IS NOT NULL");
 
                     b.ToTable("UserInformation");
+                });
+
+            modelBuilder.Entity("Novi.Models.Auction", b =>
+                {
+                    b.HasOne("Novi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("id_user");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Novi.Models.Category", b =>

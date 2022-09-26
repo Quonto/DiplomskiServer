@@ -55,6 +55,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_category")
                         .UseIdentityColumn();
 
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
@@ -77,6 +81,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_group")
                         .UseIdentityColumn();
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
 
                     b.Property<string>("Name")
                         .HasMaxLength(255)
@@ -199,6 +207,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnName("id_place")
                         .UseIdentityColumn();
 
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
@@ -267,6 +279,10 @@ namespace DiplomskiServer.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
 
                     b.Property<string>("Details")
                         .HasColumnType("nvarchar(max)")
@@ -399,6 +415,10 @@ namespace DiplomskiServer.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_user")
                         .UseIdentityColumn();
+
+                    b.Property<bool>("Delete")
+                        .HasColumnType("bit")
+                        .HasColumnName("delete");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)")
