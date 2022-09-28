@@ -193,7 +193,7 @@ namespace Novi.Controllers
         public async Task<List<Product>> FetchMostWanted()
         {
 
-            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfWish.Count).Include(p => p.NumberOfWish).Include(p => p.Picture).Take(20).AsSplitQuery().ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfWish.Count).Include(p => p.NumberOfWish).Include(p => p.Picture).Take(10).AsSplitQuery().ToListAsync();
             return pr;
         }
 
@@ -201,7 +201,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<List<Product>> FetchLikeProduct()
         {
-            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count).Take(20).Include(p => p.NumberOfLike).Include(p => p.Picture).AsSplitQuery().ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.Buy == false).OrderByDescending(p => p.NumberOfLike.Count).Take(10).Include(p => p.NumberOfLike).Include(p => p.Picture).AsSplitQuery().ToListAsync();
             return pr;
         }
 

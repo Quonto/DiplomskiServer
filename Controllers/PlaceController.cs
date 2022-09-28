@@ -57,16 +57,6 @@ namespace Novi.Controllers
             return p;
         }
 
-        [Route("RemovePlace/{id_place}")]
-        [HttpDelete]
-        public async Task RemovePlace(int id_place)
-        {
-            Place p = await Context.Place.FindAsync(id_place);
-            p.Delete = true;
-
-            Context.Place.Update(p);
-            await Context.SaveChangesAsync();
-        }
 
         [Route("UpdatePlace")]
         [HttpPut]
@@ -113,6 +103,16 @@ namespace Novi.Controllers
             return Ok();
         }
 
+        [Route("RemovePlace/{id_place}")]
+        [HttpDelete]
+        public async Task RemovePlace(int id_place)
+        {
+            Place p = await Context.Place.FindAsync(id_place);
+            p.Delete = true;
+
+            Context.Place.Update(p);
+            await Context.SaveChangesAsync();
+        }
 
 
 

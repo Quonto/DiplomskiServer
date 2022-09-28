@@ -105,8 +105,6 @@ namespace Novi.Controllers
             return reviews;
         }
 
-
-
         [Route("FetchUser")]
         [HttpPost]
         public async Task<ActionResult<User>> FetchUser([FromBody] User user)
@@ -119,6 +117,21 @@ namespace Novi.Controllers
 
             return ko;
         }
+
+        [Route("CheckPassword")]
+        [HttpPost]
+        public async Task<ActionResult> CheckPassword([FromBody] User user)
+        {
+            User us = await Context.Users.FindAsync(user.ID);
+
+            if (us.Password != user.Password)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
 
         [Route("FetchUser/{id_user}")]
         [HttpGet]
@@ -151,7 +164,6 @@ namespace Novi.Controllers
             return u;
         }
 
-
         [Route("UpdateUserPicture")]
         [HttpPut]
         public async Task<ActionResult> UpdateUserPicture([FromBody] User user)
@@ -170,6 +182,80 @@ namespace Novi.Controllers
 
             return Ok();
         }
+
+
+        [Route("UpdateUserMail")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateUserMail([FromBody] User user)
+        {
+            User us = await Context.Users.FindAsync(user.ID);
+
+            if (us == null)
+            {
+                return NotFound();
+            }
+
+            User userMail = await Context.Users.Where(u => u.Email == user.Email).FirstOrDefaultAsync();
+
+            if (userMail != null)
+            {
+                return BadRequest();
+            }
+
+            us.Email = user.Email;
+
+            Context.Users.Update(us);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [Route("UpdateUserUsername")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateUserUsername([FromBody] User user)
+        {
+            User us = await Context.Users.FindAsync(user.ID);
+
+            if (us == null)
+            {
+                return NotFound();
+            }
+
+            User userUsername = await Context.Users.Where(u => u.Username == user.Username).FirstOrDefaultAsync();
+
+            if (userUsername != null)
+            {
+                return BadRequest();
+            }
+
+            us.Username = user.Username;
+
+            Context.Users.Update(us);
+            await Context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
+
+        [Route("UpdatePassword")]
+        [HttpPut]
+        public async Task<ActionResult> UpdatePassword([FromBody] User user)
+        {
+            User us = await Context.Users.FindAsync(user.ID);
+
+            if (us == null)
+            {
+                return BadRequest();
+            }
+
+            us.Password = user.Password;
+
+            Context.Users.Update(us);
+            await Context.SaveChangesAsync();
+            return Ok();
+        }
+
 
         [Route("UpdateReview")]
         [HttpPut]
