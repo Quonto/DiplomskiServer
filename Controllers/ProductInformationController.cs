@@ -76,22 +76,32 @@ namespace Novi.Controllers
 
         [Route("RemoveProductInformation/{id_product_information}")]
         [HttpDelete]
-        public async Task RemoveProductInformation(int id_product_information)
+        public async Task<ActionResult> RemoveProductInformation(int id_product_information)
         {
             ProductInformation pi = await Context.ProductInformation.FindAsync(id_product_information);
+            if (pi == null)
+            {
+                return NotFound();
+            }
             pi.Delete = true;
             Context.ProductInformation.Update(pi);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
 
         [Route("RemoveProductInformationData/{id_product_information_data}")]
         [HttpDelete]
-        public async Task RemoveProductInformaionData(int id_product_information_data)
+        public async Task<ActionResult> RemoveProductInformaionData(int id_product_information_data)
         {
             ProductInformationData pid = await Context.ProductInformationData.FindAsync(id_product_information_data);
+            if (pid == null)
+            {
+                return NotFound();
+            }
             Context.Remove(pid);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
     }

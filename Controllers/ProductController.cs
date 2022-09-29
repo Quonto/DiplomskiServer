@@ -29,7 +29,7 @@ namespace Novi.Controllers
             Product pr = await Context.Products.FindAsync(id_product);
             if (pr == null)
             {
-                return BadRequest("Product does not exist");
+                return NotFound();
             }
 
             NumberOfViewe nv = await Context.NumberOfViewes.Where(v => v.IdUser == numberOfViewe.IdUser && v.Product.Id == id_product).FirstOrDefaultAsync();
@@ -52,7 +52,7 @@ namespace Novi.Controllers
             Product pr = await Context.Products.FindAsync(id_product);
             if (pr == null)
             {
-                return BadRequest("Product does not exist");
+                return NotFound();
             }
 
             NumberOfWish nv = await Context.NumberOfWish.Where(v => v.IdUser == numberOfWish.IdUser && v.Product.Id == id_product).FirstOrDefaultAsync();
@@ -75,7 +75,7 @@ namespace Novi.Controllers
             Product pr = await Context.Products.FindAsync(id_product);
             if (pr == null)
             {
-                return BadRequest("Product does not exist");
+                return NotFound();
             }
 
             NumberOfLike nv = await Context.NumberOfLike.Where(v => v.IdUser == numberOfLike.IdUser && v.Product.Id == id_product).FirstOrDefaultAsync();
@@ -103,39 +103,77 @@ namespace Novi.Controllers
                 return NotFound();
             }
 
-
             Group gr = await Context.Groups.FindAsync(id_group);
             if (gr == null)
             {
                 return NotFound();
             }
 
+            Product newProduct = new Product();
+
+            newProduct.User = u;
+            newProduct.Group = gr.Id;
+
+            List<ProductInformationData> prData = new List<ProductInformationData>();
+
             for (var i = 0; i < product.Data.Count; i++)
             {
+
                 ProductInformation pr = await Context.ProductInformation.FindAsync(product.Data[i].IdInfo);
 
                 if (pr == null)
                 {
                     return NotFound();
                 }
-                product.Data[i].ProductInformation = pr;
+
+                ProductInformationData prod = new ProductInformationData();
+
+                prod.Data = product.Data[i].Data;
+
+
+                prod.IdInfo = product.Data[i].IdInfo;
+
+                prod.ProductInformation = pr;
+
+                prod.Product = newProduct;
+
+                prData.Add(prod);
             }
 
-            product.User = u;
-            product.Group = gr.Id;
+            List<Image> images = new List<Image>();
+
+            for (var i = 0; i < product.Picture.Count; i++)
+            {
 
 
-            Context.Products.Add(product);
+                Image image = new Image();
+
+                image = product.Picture[i];
+
+                images.Add(image);
+            }
+
+
+
+            PlaceProductUser place = new PlaceProductUser();
+            place = product.Place;
+
+            newProduct.Data = prData;
+            newProduct.Name = product.Name;
+            newProduct.Date = product.Date;
+            newProduct.Details = product.Details;
+            newProduct.Phone = product.Phone;
+            newProduct.Price = product.Price;
+            newProduct.Auction = product.Auction;
+            newProduct.Place = place;
+            newProduct.Picture = images;
+
+            Context.Products.Add(newProduct);
             await Context.SaveChangesAsync();
 
-            Product ppr = Context.Products.Where(pr => pr.User == u && pr.Group == gr.Id && pr.Name == product.Name).FirstOrDefault();
 
-            if (ppr == null)
-            {
-                return NotFound();
-            }
 
-            return ppr.Id;
+            return newProduct.Id;
         }
 
 
@@ -184,6 +222,10 @@ namespace Novi.Controllers
         public async Task<ActionResult<Product>> FetchSingleProduct(int id_product)
         {
             Product pr = await Context.Products.Where(p => p.Id == id_product).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().FirstAsync();
+            if (pr == null)
+            {
+                return NotFound();
+            }
             return pr;
         }
 
@@ -212,33 +254,41 @@ namespace Novi.Controllers
             Product pd = await Context.Products.FindAsync(id_product);
             if (pd == null)
             {
-                return BadRequest("Product does not exist");
+                return NotFound();
             }
             return pd.NumberOfViewers;
         }
 
         [Route("InputPurchase/{id_product}")]
         [HttpPut]
-        public async Task InputPurchase(int id_product, [FromBody] Product product)
+        public async Task<ActionResult> InputPurchase(int id_product, [FromBody] Product product)
         {
             Product p = await Context.Products.FindAsync(id_product);
+            if (p == null)
+            {
+                return NotFound();
+            }
+
             p.AddToCart = product.AddToCart;
 
             Context.Products.Update(p);
             await Context.SaveChangesAsync();
 
-
-
+            return Ok();
         }
 
         [Route("InputBuy/{id_user}")]
         [HttpPut]
-        public async Task InputBuy(int id_user, [FromBody] List<Product> products)
+        public async Task<ActionResult> InputBuy(int id_user, [FromBody] List<Product> products)
         {
 
             foreach (Product product in products)
             {
                 Product p = await Context.Products.FindAsync(product.Id);
+                if (p == null)
+                {
+                    return NotFound();
+                }
                 if (p.Buy != true && p != null)
                 {
                     p.Buy = true;
@@ -250,18 +300,24 @@ namespace Novi.Controllers
                 }
             }
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("InputProduct/{id_product}")]
         [HttpPut]
-        public async Task InputProduct(int id_product)
+        public async Task<ActionResult> InputProduct(int id_product)
         {
             Product p = await Context.Products.FindAsync(id_product);
+            if (p == null)
+            {
+                return NotFound();
+            }
             p.AddToCart = false;
             p.Buy = false;
 
             Context.Products.Update(p);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
 
@@ -338,9 +394,6 @@ namespace Novi.Controllers
                 await Context.SaveChangesAsync();
             }
 
-
-
-
             foreach (ProductInformationData pi in product.Data)
             {
                 ProductInformationData pid = await Context.ProductInformationData.FindAsync(pi.Id);
@@ -367,29 +420,46 @@ namespace Novi.Controllers
 
         [Route("RemoveNumberOfView/{id_view}")]
         [HttpDelete]
-        public async Task RemoveNumberOfView(int id_view)
+        public async Task<ActionResult> RemoveNumberOfView(int id_view)
         {
             NumberOfViewe viewe = await Context.NumberOfViewes.FindAsync(id_view);
+            if (viewe == null)
+            {
+                return NotFound();
+            }
+
             Context.Remove(viewe);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("RemoveNumberOfWish/{id_wish}")]
         [HttpDelete]
-        public async Task RemoveNumberOfWish(int id_wish)
+        public async Task<ActionResult> RemoveNumberOfWish(int id_wish)
         {
             NumberOfWish wish = await Context.NumberOfWish.FindAsync(id_wish);
+            if (wish == null)
+            {
+                return NotFound();
+            }
+
             Context.Remove(wish);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("RemoveNumberOfLike/{id_like}")]
         [HttpDelete]
-        public async Task RemoveNumberOfLike(int id_like)
+        public async Task<ActionResult> RemoveNumberOfLike(int id_like)
         {
             NumberOfLike like = await Context.NumberOfLike.FindAsync(id_like);
+            if (like == null)
+            {
+                return NotFound();
+            }
             Context.Remove(like);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("RemoveProduct/{id_product}")]

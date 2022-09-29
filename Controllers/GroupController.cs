@@ -27,6 +27,8 @@ namespace Novi.Controllers
         {
 
             Category ca = await Context.Categories.FindAsync(id_category);
+            if (ca == null)
+            { return NotFound(); }
 
             Group gr = await Context.Groups.Where(g => g.Name == groups.Name && g.Category.Name == ca.Name).FirstOrDefaultAsync();
 
@@ -36,9 +38,6 @@ namespace Novi.Controllers
                 gr.Picture = groups.Picture;
                 gr.ProductInformation = groups.ProductInformation;
                 gr.Products = groups.Products;
-
-
-
 
                 Context.Groups.Update(gr);
                 await Context.SaveChangesAsync();
@@ -70,6 +69,10 @@ namespace Novi.Controllers
         public async Task<ActionResult<Group>> FetchGroup(int id_group)
         {
             Group g = await Context.Groups.Where(pi => pi.Id == id_group && pi.Delete == false).Include(p => p.ProductInformation.Where(p => p.Delete == false)).FirstAsync();
+            if (g == null)
+            {
+                return NotFound();
+            }
             return g;
         }
 
@@ -85,6 +88,11 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateGroup([FromBody] Group group)
         {
+            if (group == null)
+            {
+                return BadRequest(new { Group = group });
+            }
+
             Context.Groups.Update(group);
             await Context.SaveChangesAsync();
 
@@ -93,13 +101,17 @@ namespace Novi.Controllers
 
         [Route("RemoveGroup/{id_group}")]
         [HttpDelete]
-        public async Task RemoveGroup(int id_group)
+        public async Task<ActionResult> RemoveGroup(int id_group)
         {
             Group group = await Context.Groups.FindAsync(id_group);
-
+            if (group == null)
+            {
+                return NotFound();
+            }
             group.Delete = true;
             Context.Groups.Update(group);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
     }

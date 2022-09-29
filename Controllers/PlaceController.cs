@@ -64,8 +64,11 @@ namespace Novi.Controllers
         {
 
             Place curentPlace = await Context.Place.Where(p => p.Id == place.Id).FirstAsync();
+
             if (curentPlace == null)
-            { return NotFound(); }
+            {
+                return NotFound();
+            }
 
             List<PlaceProductUser> places = await Context.PlaceProductUser.Where(p => p.Name == curentPlace.Name && p.UserInformation == null).ToListAsync();
 
@@ -105,13 +108,18 @@ namespace Novi.Controllers
 
         [Route("RemovePlace/{id_place}")]
         [HttpDelete]
-        public async Task RemovePlace(int id_place)
+        public async Task<ActionResult> RemovePlace(int id_place)
         {
             Place p = await Context.Place.FindAsync(id_place);
+            if (p == null)
+            {
+                return NotFound();
+            }
             p.Delete = true;
 
             Context.Place.Update(p);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
 

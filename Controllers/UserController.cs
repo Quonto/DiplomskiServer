@@ -30,53 +30,107 @@ namespace Novi.Controllers
 
             if (u != null)
             {
-                return BadRequest("User exist");
+                return BadRequest(new { Username = user?.Username });
 
             }
 
             Context.Users.Add(user);
             await Context.SaveChangesAsync();
-            return Ok();
+            return Created("User created", user);
         }
 
         [Route("InputUserInformation/{id_user}")]
         [HttpPost]
-        public async Task InputUserInformation(int id_user, [FromBody] UserInformation informations)
+        public async Task<ActionResult> InputUserInformation(int id_user, [FromBody] UserInformation informations)
         {
             User us = await Context.Users.FindAsync(id_user);
+            if (us == null)
+            {
+                return NotFound();
+            }
             informations.User = us;
 
             Context.UserInformation.Add(informations);
             await Context.SaveChangesAsync();
+            return Created("UserInformation created", informations);
         }
 
 
         [Route("InputProductPicture/{id_product}")]
         [HttpPost]
-        public async Task InputProductPicture(int id_product, [FromBody] Image productPicture)
+        public async Task<ActionResult> InputProductPicture(int id_product, [FromBody] Image productPicture)
         {
             Product pr = await Context.Products.FindAsync(id_product);
+            if (pr == null)
+            {
+                return NotFound();
+            }
             productPicture.Product = pr;
 
             Context.Images.Add(productPicture);
             await Context.SaveChangesAsync();
+            return Created("ProductPicter created", productPicture);
         }
 
         [Route("InputReview/{id_product}/{id_user}")]
         [HttpPost]
-        public async Task<Review> InputReview(int id_product, int id_user, [FromBody] Review review)
+        public async Task<ActionResult<Review>> InputReview(int id_product, int id_user, [FromBody] Review review)
         {
             Product pr = await Context.Products.FindAsync(id_product);
+            if (pr == null)
+            {
+                return NotFound();
+            }
             User us = await Context.Users.FindAsync(id_user);
+            if (us == null)
+            {
+                return NotFound();
+            }
 
-            review.Product = pr;
-            review.User = us;
+            Review newReview = new Review();
 
-            Context.Reviews.Add(review);
+            newReview.Coment = review.Coment;
+            newReview.Mark = review.Mark;
+            newReview.Product = pr;
+            newReview.User = us;
+
+            Context.Reviews.Add(newReview);
             await Context.SaveChangesAsync();
 
-            Review r = await Context.Reviews.Where(r => r.Coment == review.Coment).FirstAsync();
-            return r;
+
+            return newReview;
+        }
+
+
+        [Route("FetchUser")]
+        [HttpPost]
+        public async Task<ActionResult<User>> FetchUser([FromBody] User user)
+        {
+
+            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password && u.Delete == false).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstOrDefaultAsync();
+
+            if (ko == null)
+                return NotFound();
+
+            return ko;
+        }
+
+        [Route("CheckPassword")]
+        [HttpPost]
+        public async Task<ActionResult> CheckPassword([FromBody] User user)
+        {
+            User us = await Context.Users.FindAsync(user.ID);
+            if (us == null)
+            {
+                return NotFound();
+            }
+
+            if (us.Password != user.Password)
+            {
+                return BadRequest("Password is wrong!");
+            }
+
+            return Ok();
         }
 
         [Route("FetchReviews/{id_user}")]
@@ -105,32 +159,6 @@ namespace Novi.Controllers
             return reviews;
         }
 
-        [Route("FetchUser")]
-        [HttpPost]
-        public async Task<ActionResult<User>> FetchUser([FromBody] User user)
-        {
-
-            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password && u.Delete == false).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstOrDefaultAsync();
-
-            if (ko == null)
-                return NotFound();
-
-            return ko;
-        }
-
-        [Route("CheckPassword")]
-        [HttpPost]
-        public async Task<ActionResult> CheckPassword([FromBody] User user)
-        {
-            User us = await Context.Users.FindAsync(user.ID);
-
-            if (us.Password != user.Password)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
-        }
 
 
         [Route("FetchUser/{id_user}")]
@@ -145,7 +173,7 @@ namespace Novi.Controllers
             User u = await Context.Users.Where(u => u.ID == id_user && u.Delete == false).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).FirstAsync();
             if (u == null)
             {
-                return BadRequest("Product does not exist");
+                return BadRequest("User does not exist");
             }
             return u;
         }
@@ -157,9 +185,9 @@ namespace Novi.Controllers
 
 
             List<User> u = await Context.Users.Where(u => u.IsAdmin == false && u.Delete == false).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).ToListAsync();
-            if (u == null)
+            if (u.Count == 0)
             {
-                return BadRequest("Product does not exist");
+                return BadRequest("Users does not exist");
             }
             return u;
         }
@@ -199,7 +227,7 @@ namespace Novi.Controllers
 
             if (userMail != null)
             {
-                return BadRequest();
+                return BadRequest("Another acount use mail");
             }
 
             us.Email = user.Email;
@@ -225,7 +253,7 @@ namespace Novi.Controllers
 
             if (userUsername != null)
             {
-                return BadRequest();
+                return BadRequest("Username exist");
             }
 
             us.Username = user.Username;
@@ -246,7 +274,7 @@ namespace Novi.Controllers
 
             if (us == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             us.Password = user.Password;
@@ -314,52 +342,75 @@ namespace Novi.Controllers
 
         [Route("RemovePicture/{id_image}")]
         [HttpDelete]
-        public async Task RemovePicture(int id_image)
+        public async Task<ActionResult> RemovePicture(int id_image)
         {
             Image image = await Context.Images.FindAsync(id_image);
+            if (image == null)
+            {
+                return NotFound();
+            }
             Context.Remove(image);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
 
         [Route("RemoveReview/{id_review}")]
         [HttpDelete]
-        public async Task RemoveReview(int id_review)
+        public async Task<ActionResult> RemoveReview(int id_review)
         {
             Review review = await Context.Reviews.FindAsync(id_review);
+            if (review == null)
+            {
+                return NotFound();
+            }
             Context.Remove(review);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("RemoveUserInformation/{id_user_information}")]
         [HttpDelete]
-        public async Task RemoveUserInformation(int id_user_information)
+        public async Task<ActionResult> RemoveUserInformation(int id_user_information)
         {
             UserInformation userInformation = await Context.UserInformation.FindAsync(id_user_information);
+            if (userInformation == null)
+            {
+                return NotFound();
+            }
             Context.Remove(userInformation);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("RemoveUser/{id_user}")]
         [HttpDelete]
-        public async Task RemoveUser(int id_user)
+        public async Task<ActionResult> RemoveUser(int id_user)
         {
             User user = await Context.Users.FindAsync(id_user);
-
+            if (user == null)
+            {
+                return NotFound();
+            }
             user.Delete = true;
             Context.Users.Update(user);
             await Context.SaveChangesAsync();
-
+            return Ok();
         }
 
 
         [Route("RemoveImage/{id_image}")]
         [HttpDelete]
-        public async Task RemoveImage(int id_image)
+        public async Task<ActionResult> RemoveImage(int id_image)
         {
             Image image = await Context.Images.FindAsync(id_image);
+            if (image == null)
+            {
+                return NotFound();
+            }
             Context.Remove(image);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
     }

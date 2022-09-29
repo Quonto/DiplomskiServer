@@ -55,10 +55,7 @@ namespace Novi.Controllers
         public async Task<ActionResult<List<Category>>> FetchAllCategories()
         {
             List<Category> c = await Context.Categories.Where(c => c.Delete == false).Include(c => c.Groups).Include(c => c.Groups).ThenInclude(c => c.Products).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Picture).Include(c => c.Groups).ThenInclude(p => p.ProductInformation.Where(pi => pi.Delete == false)).Include(c => c.Groups).ThenInclude(c => c.Products).ThenInclude(c => c.Reviews).ToListAsync();
-            if (c == null)
-            {
-                return NotFound();
-            }
+
             return c;
         }
 
@@ -67,6 +64,7 @@ namespace Novi.Controllers
         public async Task<ActionResult<List<Category>>> FetchCategoriesAndGroups()
         {
             List<Category> c = await Context.Categories.Where(c => c.Delete == false).Include(c => c.Picture).Include(c => c.Groups).Include(g => g.Groups).ThenInclude(pr => pr.ProductInformation.Where(p => p.Delete == false)).Include(g => g.Groups).ThenInclude(p => p.Picture).AsSplitQuery().ToListAsync();
+
             return c;
         }
 
@@ -80,21 +78,26 @@ namespace Novi.Controllers
 
         [Route("UpdateCategory")]
         [HttpPut]
-        public async Task UpdateCategory([FromBody] Category category)
+        public async Task<ActionResult> UpdateCategory([FromBody] Category category)
         {
             Context.Categories.Update(category);
             await Context.SaveChangesAsync();
+            return Ok();
         }
 
         [Route("RemoveCategory/{id_category}")]
         [HttpDelete]
-        public async Task RemoveCategory(int id_category)
+        public async Task<ActionResult> RemoveCategory(int id_category)
         {
             Category category = await Context.Categories.FindAsync(id_category);
-
+            if (category == null)
+            {
+                return NotFound();
+            }
             category.Delete = true;
             Context.Categories.Update(category);
             await Context.SaveChangesAsync();
+            return Ok();
         }
     }
 }

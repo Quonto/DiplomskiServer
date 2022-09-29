@@ -28,13 +28,24 @@ namespace Novi.Controllers
 
         [Route("InputAuction/{id_product}")]
         [HttpPost]
-        public async Task<IActionResult> InputAuction(int id_product, [FromBody] Auction auction)
+        public async Task<ActionResult> InputAuction(int id_product, [FromBody] Auction auction)
         {
-            auction.Product = id_product;
-            Context.Auction.Add(auction);
+            Auction newAuction = new Auction();
+
+            if (auction == null)
+            {
+                return NotFound();
+            }
+
+            newAuction.Product = id_product;
+            newAuction.MinimumPrice = auction.MinimumPrice;
+            newAuction.Time = auction.Time;
+            newAuction.User = auction.User;
+
+            Context.Auction.Add(newAuction);
             await Context.SaveChangesAsync();
 
-            return Ok();
+            return Created("New auction", newAuction);
         }
 
 
@@ -43,9 +54,11 @@ namespace Novi.Controllers
         public async Task<ActionResult<Auction>> FetchAuction(int id_product)
         {
 
-            //  Auction au = await Context.Auction.Where(a => a.Product == id_product && a.User != null).Select(a => new Auction { Id = a.Id, MinimumPrice = a.MinimumPrice, Product = a.Product, Time = a.Time, User = new User { ID = a.User.ID, IsAdmin = a.User.IsAdmin, Picture = a.User.Picture, Username = a.User.Username, UserInformation = null } }).FirstAsync();
             Auction au = await Context.Auction.Where(a => a.Product == id_product).Select(a => new Auction { Id = a.Id, MinimumPrice = a.MinimumPrice, Product = a.Product, Time = a.Time, User = (a.User == null) ? null : new User { ID = a.User.ID, IsAdmin = a.User.IsAdmin, Picture = a.User.Picture, Username = a.User.Username, UserInformation = null } }).FirstAsync();
-
+            if (au == null)
+            {
+                return NotFound();
+            }
 
             return au;
         }
@@ -71,7 +84,7 @@ namespace Novi.Controllers
 
             if ((au.MinimumPrice + p.Price) > product.Price)
             {
-                return BadRequest();
+                return BadRequest(new { MinimumPrice = product?.Price });
             }
 
             var currentDate = DateTime.Now;
@@ -106,6 +119,11 @@ namespace Novi.Controllers
         {
             Auction au = await Context.Auction.Where(au => au.Id == auction.Id).Include(a => a.User).FirstAsync();
 
+            if (au == null)
+            {
+                return NotFound();
+            }
+
             au.Time = auction.Time;
             au.MinimumPrice = auction.MinimumPrice;
             au.User = auction.User;
@@ -120,9 +138,14 @@ namespace Novi.Controllers
 
         [Route("UpdateAuctionProduct")]
         [HttpPut]
-        public async Task<System.TimeSpan> UpdateAuctionProduct()
+        public async Task<ActionResult<System.TimeSpan>> UpdateAuctionProduct()
         {
             List<Product> products = await Context.Products.Where(p => p.Auction == true).ToListAsync();
+            if (products == null)
+            {
+                return NotFound();
+            }
+
             var currentDate = DateTime.Now;
             var leftTime = System.TimeSpan.Zero;
 
@@ -130,6 +153,10 @@ namespace Novi.Controllers
             {
                 Auction auction = await Context.Auction.Where(a => a.Product == product.Id).FirstAsync();
 
+                if (auction == null)
+                {
+                    return NotFound();
+                }
 
 
                 leftTime = auction.Time.Subtract(currentDate);
