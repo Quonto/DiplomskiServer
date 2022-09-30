@@ -141,7 +141,7 @@ namespace Novi.Controllers
             List<Review> reviews = await Context.Reviews.Where(u => u.User.ID == id_user).Include(u => u.User).ToListAsync();
 
             if (reviews.Count == 0)
-                return NotFound();
+                return NotFound("Nema komentara");
 
             return reviews;
         }
@@ -154,7 +154,7 @@ namespace Novi.Controllers
             List<Review> reviews = await Context.Reviews.Where(u => u.Product.Id == id_product).Include(u => u.User).ToListAsync();
 
             if (reviews.Count == 0)
-                return NotFound();
+                return NotFound("Nema komentara");
 
             return reviews;
         }
@@ -187,7 +187,7 @@ namespace Novi.Controllers
             List<User> u = await Context.Users.Where(u => u.IsAdmin == false && u.Delete == false).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).ToListAsync();
             if (u.Count == 0)
             {
-                return BadRequest("Users does not exist");
+                return NotFound("Ne postoje korisnici");
             }
             return u;
         }
@@ -296,6 +296,11 @@ namespace Novi.Controllers
                 return NotFound();
             }
 
+            if (review.Mark < 1 || review.Mark > 5)
+            {
+                return BadRequest("Loša izmena. Ocena moze biti od 1 do 5");
+            }
+
             r.Coment = review.Coment;
             r.Mark = review.Mark;
 
@@ -314,6 +319,26 @@ namespace Novi.Controllers
             if (ui == null)
             {
                 return NotFound();
+            }
+
+            if (userInformation.Place.Name == "")
+            {
+                return BadRequest("Niste uneli mesto korisnika");
+            }
+
+            if (userInformation.NameUser == "")
+            {
+                return BadRequest("Niste uneli ime korisnika");
+            }
+
+            if (userInformation.Surename == "")
+            {
+                return BadRequest("Niste uneli prezime korisnika");
+            }
+
+            if (userInformation.Phone == "")
+            {
+                return BadRequest("Niste uneli telefon korisnika");
             }
 
             PlaceProductUser pl = await Context.PlaceProductUser.Where(pl => pl.UserInformation.Id == ui.Id).FirstAsync();

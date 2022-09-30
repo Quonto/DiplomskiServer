@@ -25,6 +25,10 @@ namespace Novi.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> InputPlace([FromBody] Place place)
         {
+            if (place.Name == "")
+            {
+                return BadRequest("Niste uneli naziv mesta");
+            }
 
 
             Place currentPlace = await Context.Place.Where(p => p.Name == place.Name).FirstOrDefaultAsync();
@@ -36,6 +40,7 @@ namespace Novi.Controllers
                 await Context.SaveChangesAsync();
                 return currentPlace.Id;
             }
+
 
             Place newPlace = new Place();
             newPlace.Delete = false;
@@ -54,6 +59,10 @@ namespace Novi.Controllers
         public async Task<ActionResult<List<Place>>> FetchPlace()
         {
             List<Place> p = await Context.Place.Where(p => p.Delete == false).AsSplitQuery().ToListAsync();
+            if (p.Count == 0)
+            {
+                return NotFound("Nema mesta");
+            }
             return p;
         }
 
@@ -62,6 +71,10 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdatePlace([FromBody] Place place)
         {
+            if (place.Name == "")
+            {
+                return BadRequest("Niste uneli naziv mesta");
+            }
 
             Place curentPlace = await Context.Place.Where(p => p.Id == place.Id).FirstAsync();
 

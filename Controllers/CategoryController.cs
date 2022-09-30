@@ -23,8 +23,13 @@ namespace Novi.Controllers
 
         [Route("InputCategory")]
         [HttpPost]
-        public async Task<Category> InputCategory([FromBody] Category category)
+        public async Task<ActionResult<Category>> InputCategory([FromBody] Category category)
         {
+            if (category.Name == "")
+            {
+                return BadRequest("Niste uneli naziv kategorije");
+            }
+
             Category currentCategory = await Context.Categories.Where(c => c.Name == category.Name).FirstOrDefaultAsync();
 
             if (currentCategory != null)
@@ -38,6 +43,13 @@ namespace Novi.Controllers
             }
 
             Category newCategory = new Category();
+
+
+            if (category.Picture.Data == null)
+            {
+                return BadRequest("Niste uneli sliku kategorije");
+            }
+
 
             newCategory.Delete = false;
             newCategory.Name = category.Name;
@@ -80,6 +92,16 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateCategory([FromBody] Category category)
         {
+            if (category.Name == "")
+            {
+                return BadRequest("Niste uneli naziv kategorije");
+            }
+
+            if (category.Picture.Data == null)
+            {
+                return BadRequest("Niste uneli sliku kategorije");
+            }
+
             Context.Categories.Update(category);
             await Context.SaveChangesAsync();
             return Ok();

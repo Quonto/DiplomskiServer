@@ -30,6 +30,12 @@ namespace Novi.Controllers
             if (ca == null)
             { return NotFound(); }
 
+            if (groups.Name == "")
+            {
+                return BadRequest("Niste uneli ime grupe");
+            }
+
+
             Group gr = await Context.Groups.Where(g => g.Name == groups.Name && g.Category.Name == ca.Name).FirstOrDefaultAsync();
 
             if (gr != null)
@@ -42,6 +48,11 @@ namespace Novi.Controllers
                 Context.Groups.Update(gr);
                 await Context.SaveChangesAsync();
                 return gr;
+            }
+
+            if (groups.Picture.Data == null)
+            {
+                return BadRequest("Niste uneli sliku grupe");
             }
 
 
@@ -88,9 +99,15 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateGroup([FromBody] Group group)
         {
-            if (group == null)
+
+            if (group.Name == "")
             {
-                return BadRequest(new { Group = group });
+                return BadRequest("Niste uneli ime grupe");
+            }
+
+            if (group.Picture.Data == null)
+            {
+                return BadRequest("Niste uneli sliku grupe");
             }
 
             Context.Groups.Update(group);

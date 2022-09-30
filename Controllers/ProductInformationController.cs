@@ -33,6 +33,11 @@ namespace Novi.Controllers
 
             productInformation.Groups = gr;
 
+            if (productInformation.Name == "")
+            {
+                return BadRequest("Niste uneli naziv informacije o proizvodu");
+            }
+
             ProductInformation pi = await Context.ProductInformation.Where(pi => pi.Name == productInformation.Name && pi.Groups.Id == gr.Id).FirstOrDefaultAsync();
 
             if (pi != null)
@@ -68,6 +73,10 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateProductInformation([FromBody] ProductInformation productInformation)
         {
+            if (productInformation.Name == "")
+            {
+                return BadRequest("Niste uneli naziv informacije o proizvodu");
+            }
             Context.ProductInformation.Update(productInformation);
             await Context.SaveChangesAsync();
 

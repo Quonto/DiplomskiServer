@@ -347,11 +347,21 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult<Product>> UpdateProduct([FromBody] Product product)
         {
+            if (product.Price == 0)
+            {
+                return BadRequest("Niste uneli cenu proizvoda");
+            }
+
             Product p = await Context.Products.FindAsync(product.Id);
 
             if (p == null)
             {
                 return NotFound();
+            }
+
+            if (product.Place.Name == "")
+            {
+                return BadRequest("Niste uneli naziv mesta");
             }
 
             PlaceProductUser pl = await Context.PlaceProductUser.Where(pl => pl.Product.Id == p.Id).FirstAsync();
@@ -366,6 +376,17 @@ namespace Novi.Controllers
 
             Context.PlaceProductUser.Update(pl);
 
+            if (product.Name == "")
+            {
+                return BadRequest("Niste uneli naziv proizvoda");
+            }
+
+
+
+            if (product.Phone == "")
+            {
+                return BadRequest("Niste uneli kontakt");
+            }
 
             p.Name = product.Name;
             p.Price = product.Price;
