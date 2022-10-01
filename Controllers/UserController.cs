@@ -26,17 +26,74 @@ namespace Novi.Controllers
         [HttpPost]
         public async Task<ActionResult> InputUser([FromBody] User user)
         {
+            if (user.Username == "")
+            {
+                return BadRequest("Niste uneli korisničko ime");
+            }
+
             User u = await Context.Users.Where(u => u.Username == user.Username).FirstOrDefaultAsync();
 
             if (u != null)
             {
-                return BadRequest(new { Username = user?.Username });
+                return BadRequest("Korisničko ime postoji");
+
+            }
+            if (user.Picture == "")
+            {
+                return BadRequest("Niste uneli sliku");
+
+            }
+            if (user.Email == "")
+            {
+                return BadRequest("Niste uneli mail");
+
+            }
+            if (user.Password == "")
+            {
+                return BadRequest("Niste uneli šifru");
+            }
+            if (user.UserInformation.NameUser == "")
+            {
+                return BadRequest("Niste uneli ime");
+            }
+            if (user.UserInformation.Surename == "")
+            {
+                return BadRequest("Niste uneli prezime");
 
             }
 
-            Context.Users.Add(user);
+            if (user.UserInformation.Phone == "")
+            {
+                return BadRequest("Niste uneli kontakt");
+            }
+
+            User newUser = new User();
+            newUser.Delete = false;
+            newUser.Email = user.Email;
+            newUser.IsAdmin = false;
+            newUser.Password = user.Password;
+            newUser.Picture = user.Picture;
+            newUser.Username = user.Username;
+
+            UserInformation userInformation = new UserInformation();
+            userInformation.Data = user.UserInformation.Data;
+            userInformation.Date = user.UserInformation.Date;
+            userInformation.NameUser = user.UserInformation.NameUser;
+            userInformation.Phone = user.UserInformation.Phone;
+            userInformation.Surename = user.UserInformation.Surename;
+            userInformation.User = newUser;
+
+            newUser.UserInformation = userInformation;
+
+            PlaceProductUser place = new PlaceProductUser();
+            place.Name = user.UserInformation.Place.Name;
+            place.UserInformation = userInformation;
+
+            newUser.UserInformation.Place = place;
+
+            Context.Users.Add(newUser);
             await Context.SaveChangesAsync();
-            return Created("User created", user);
+            return Created("Korisnik je kreiran", newUser);
         }
 
         [Route("InputUserInformation/{id_user}")]
@@ -89,6 +146,11 @@ namespace Novi.Controllers
 
             Review newReview = new Review();
 
+            if (review.Mark < 1 || review.Mark > 5)
+            {
+                return BadRequest("Loša Ocena. Ocena mora biti od 1 do 5");
+            }
+
             newReview.Coment = review.Coment;
             newReview.Mark = review.Mark;
             newReview.Product = pr;
@@ -107,7 +169,17 @@ namespace Novi.Controllers
         public async Task<ActionResult<User>> FetchUser([FromBody] User user)
         {
 
-            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Password == user.Password && u.Delete == false).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstOrDefaultAsync();
+            User ko = await Context.Users.Where(u => u.Username == user.Username && u.Delete == false).Include(u => u.UserInformation).Include(u => u.UserInformation).ThenInclude(p => p.Place).FirstOrDefaultAsync();
+
+            if (ko == null)
+            {
+                return BadRequest("Pogrešno korisnićko ime");
+            }
+
+            if (ko.Password != user.Password)
+            {
+                return BadRequest("Loša šifra");
+            }
 
             if (ko == null)
                 return NotFound();
@@ -127,7 +199,7 @@ namespace Novi.Controllers
 
             if (us.Password != user.Password)
             {
-                return BadRequest("Password is wrong!");
+                return BadRequest("Pogrešna šifra");
             }
 
             return Ok();
@@ -202,6 +274,10 @@ namespace Novi.Controllers
             {
                 return NotFound();
             }
+            if (user.Picture == null)
+            {
+                return BadRequest("Unesite sliku");
+            }
 
             us.Picture = user.Picture;
 
@@ -227,7 +303,7 @@ namespace Novi.Controllers
 
             if (userMail != null)
             {
-                return BadRequest("Another acount use mail");
+                return BadRequest("Uneti mejl već postoji");
             }
 
             us.Email = user.Email;
@@ -253,7 +329,7 @@ namespace Novi.Controllers
 
             if (userUsername != null)
             {
-                return BadRequest("Username exist");
+                return BadRequest("Korisničko ime postoji");
             }
 
             us.Username = user.Username;

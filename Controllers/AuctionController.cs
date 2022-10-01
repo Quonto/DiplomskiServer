@@ -68,23 +68,19 @@ namespace Novi.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateAuction(int id_user, [FromBody] Product product)
         {
-            Product p = await Context.Products.Where(p => p.Id == product.Id).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).FirstAsync();
-            if (p == null)
-            {
-                return NotFound();
-            }
+            Product p = await Context.Products.Where(p => p.Id == product.Id).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(p => p.Place).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(u => u.User).ThenInclude(ui => ui.UserInformation).ThenInclude(pl => pl.Place).Include(r => r.Reviews).Include(r => r.Reviews).ThenInclude(u => u.User).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().FirstAsync();
+
 
             User u = await Context.Users.FindAsync(id_user);
-            if (u == null)
-            {
-                return NotFound();
-            }
+
 
             Auction au = await Context.Auction.Where(a => a.Product == product.Id).FirstAsync();
 
             if ((au.MinimumPrice + p.Price) > product.Price)
             {
-                return BadRequest(new { MinimumPrice = product?.Price });
+                return BadRequest(
+                    "Uneli ste cenu manju od minimalne"
+                );
             }
 
             var currentDate = DateTime.Now;

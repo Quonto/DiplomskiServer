@@ -153,7 +153,25 @@ namespace Novi.Controllers
                 images.Add(image);
             }
 
+            if (product.Name == "")
+            {
+                return BadRequest("Unesite ime proizvoda");
+            }
 
+            if (product.Price == 0)
+            {
+                return BadRequest("Unesite cenu proizvoda");
+            }
+
+            if (product.Place.Name == "")
+            {
+                return BadRequest("Unesite mesto proizvoda");
+            }
+
+            if (product.Phone == "")
+            {
+                return BadRequest("Unestie kontakt");
+            }
 
             PlaceProductUser place = new PlaceProductUser();
             place = product.Place;
@@ -204,7 +222,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Product>>> FetchUserProducts(int id_user)
         {
-            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user && p.Buy == true).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user && p.Buy == true).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).AsSplitQuery().ToListAsync();
             return pr;
         }
 
@@ -331,6 +349,12 @@ namespace Novi.Controllers
             {
                 return NotFound();
             }
+
+            if (product.Price == 0)
+            {
+                return BadRequest("Niste uneli cenu proizvoda");
+            }
+
 
             p.Buy = product.Buy;
             p.Price = product.Price;
