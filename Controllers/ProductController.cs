@@ -230,7 +230,7 @@ namespace Novi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Product>>> GetUserProducts(int id_user)
         {
-            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).Include(p => p.Place).AsSplitQuery().ToListAsync();
+            List<Product> pr = await Context.Products.Where(p => p.User.ID == id_user && p.Buy == false).Include(p => p.Data).Include(p => p.Data).ThenInclude(pi => pi.ProductInformation).Include(u => u.User).Include(u => u.User).ThenInclude(u => u.UserInformation).Include(r => r.Reviews).Include(p => p.Picture).Include(n => n.NumberOfViewers).Include(w => w.NumberOfWish).Include(l => l.NumberOfLike).Include(p => p.Place).AsSplitQuery().ToListAsync();
             return pr;
         }
 

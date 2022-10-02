@@ -76,6 +76,11 @@ namespace Novi.Controllers
 
             Auction au = await Context.Auction.Where(a => a.Product == product.Id).FirstAsync();
 
+            if (product.Price == 0)
+            {
+                return BadRequest("Niste uneli cenu");
+            }
+
             if ((au.MinimumPrice + p.Price) > product.Price)
             {
                 return BadRequest(
