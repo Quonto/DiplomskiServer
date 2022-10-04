@@ -245,7 +245,7 @@ namespace Novi.Controllers
             User u = await Context.Users.Where(u => u.ID == id_user && u.Delete == false).Include(u => u.UserInformation).Include(p => p.UserInformation).ThenInclude(p => p.Place).FirstAsync();
             if (u == null)
             {
-                return BadRequest("User does not exist");
+                return BadRequest("Korisnik ne postoji");
             }
             return u;
         }
