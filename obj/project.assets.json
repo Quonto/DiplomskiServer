@@ -5653,11 +5653,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Pc\\Desktop\\DiplomskiServer\\DiplomskiServer.csproj",
+      "projectUniqueName": "F:\\VaznoDip\\DiplomskiServer\\DiplomskiServer.csproj",
       "projectName": "DiplomskiServer",
-      "projectPath": "C:\\Users\\Pc\\Desktop\\DiplomskiServer\\DiplomskiServer.csproj",
+      "projectPath": "F:\\VaznoDip\\DiplomskiServer\\DiplomskiServer.csproj",
       "packagesPath": "C:\\Users\\Pc\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Pc\\Desktop\\DiplomskiServer\\obj\\",
+      "outputPath": "F:\\VaznoDip\\DiplomskiServer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Pc\\AppData\\Roaming\\NuGet\\NuGet.Config",

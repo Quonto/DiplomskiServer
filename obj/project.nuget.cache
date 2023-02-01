@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "md9/7ulBQOSpUp1K140+fK6jZsfQHuj4fVvkp9Pm7H7MVstUPrrf8tcmqyokTe5V0tMyESPKDyieCYVSuv/UbQ==",
+  "dgSpecHash": "qPkUUiaJoBNNMadg6VyWSZVnh0RUaPhJZ9W+6zs60AnyUCWeZo/YIS3G6+fDFm1wH3q2AqXWr4fnx8y995aq/A==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Pc\\Desktop\\DiplomskiServer\\DiplomskiServer.csproj",
+  "projectFilePath": "F:\\VaznoDip\\DiplomskiServer\\DiplomskiServer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Pc\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Pc\\.nuget\\packages\\microsoft.aspnetcore.jsonpatch\\5.0.5\\microsoft.aspnetcore.jsonpatch.5.0.5.nupkg.sha512",
