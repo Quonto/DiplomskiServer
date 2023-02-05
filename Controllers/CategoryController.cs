@@ -55,6 +55,7 @@ namespace Novi.Controllers
             newCategory.Name = category.Name;
             newCategory.Picture = category.Picture;
 
+
             Context.Categories.Add(newCategory);
             await Context.SaveChangesAsync();
 
